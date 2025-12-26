@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 217 33% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 12%;
+    --primary: 191 90% 38%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 32% 92%;
+    --secondary-foreground: 217 33% 12%;
+    --muted: 215 32% 92%;
+    --muted-foreground: 217 16% 42%;
+    --accent: 33 92% 90%;
+    --accent-foreground: 24 74% 18%;
+    --destructive: 0 82% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 90%;
+    --input: 214 32% 90%;
+    --ring: 191 90% 38%;
+    --chart-1: 191 90% 38%;
+    --chart-2: 165 75% 35%;
+    --chart-3: 33 92% 60%;
+    --chart-4: 223 47% 24%;
+    --chart-5: 266 75% 60%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 13%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 13%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 191 90% 48%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 18%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 18%;
+    --muted-foreground: 214 32% 75%;
+    --accent: 33 92% 60%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 191 90% 48%;
+    --chart-1: 191 90% 48%;
+    --chart-2: 165 75% 45%;
+    --chart-3: 33 92% 70%;
+    --chart-4: 223 47% 34%;
+    --chart-5: 266 75% 70%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    background:
+      radial-gradient(circle at 25% 20%, rgba(59, 130, 246, 0.08), transparent 30%),
+      radial-gradient(circle at 80% 0%, rgba(16, 185, 129, 0.08), transparent 28%),
+      linear-gradient(135deg, rgba(15, 23, 42, 0.04), rgba(15, 23, 42, 0));
+    font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  }
+
+  ::selection {
+    background-color: hsl(var(--primary) / 0.15);
+  }
+}

@@ -1,0 +1,91 @@
+1. Go to s3
+2. create a bucket "datima-specialist-clinics"
+AWS_BUCKET_NAME="datima-specialist-clinics"
+AWS_REGION="us-east-1"
+3. GO to IAM and create an IAM_USER_GROUP="datima-user-group"
+Attach policy to the user group
+-Search for AmazonS3FullAcess
+4. Create a user ="datima-user". and add to user group
+5.Still on the user tab, scroll down to the Acess key section
+-create access key and select "Application running outside AWS"
+store Access key and secret key
+AWS_ACCESS_KEY=""
+AWS_SECRET_ACCESS_KEY=""
+npm install @aws-sdk/client-s3
+
+6.In the next app/ create "aws.ts" in the "src/lib" folder
+7.create a file "environment.d.ts" in the top level directory
+
+TITLE: DATIMA SPECIALIST CLINICS
+
+ABOUT US
+Datima Specialist Clinics is a patient-centered healthcare facility committed to delivering top-notch medical services in a warm, professional, and compassionate environment.
+
+At Datima, your health and well-being come first. We are driven by professionalism, integrity, and a commitment to excellence — because you deserve care you can trust.
+
+Our clinics are equipped with state-of-the-art medical equipment, enabling accurate diagnosis, effective treatment, and excellent clinical outcomes across all our services. From routine consultations to specialized care, we combine advanced technology with proven medical expertise to ensure the best possible patient experience.
+
+Datima Specialist Clinics is home to renowned specialists in diverse medical fields, including general medicine, cardiology, paediatrics, obstetrics and gynaecology, dental care, eye care, radiology, laboratory services, and more. Our multidisciplinary team works collaboratively to deliver personalized, evidence-based care tailored to each patient’s needs.
+
+OUR SERVICES
+Datima Specialist Clinics offers a wide range of medical services across diverse medical fields, delivered by experienced and dedicated specialists. Our services are provided on specific days and at scheduled times to ensure optimal care and specialist availability.
+
+To help us serve you better and reduce waiting time, we kindly encourage all patients to book an appointment in advance to see one of our specialists. This allows us to give you the attention and quality care you deserve.
+
+Please explore our full catalogue of medical services to view detailed information on each service and its availability:
+
+GENERAL MEDICAL/DENTAL CLINICS
+Routine medical consultations. Diagnosis and treatment of common illnesses. Preventive care and health screenings. Chronic disease management
+Comprehensive oral health services, including:
+General Dentistry. Oral & Maxillofacial Surgery. Restorative Dentistry. Orthodontics. Preventive and cosmetic dental care
+Mon: 8am - Saturday 9pm
+
+CARDIOLOGY(Hypertension, heart related diseases)
+Wednessday:12noon - 5pm
+
+ENT( Ear, Nose and Throat)
+Saturday: 10am - 2pm
+
+OBSTERICS & GYNEACOLOGY (Pregnancy, infertility, Fibroid, endometriosis etc.)
+Sunday:10am - 2pm
+
+ENDOCRINOLOGY(Diabetes, thyroid diseases etc.)
+Sunday: 2pm - 6pm
+
+PAEDIATRICS(Children Clinic)
+Friday:10am-2pm
+
+ORAL AND MAXILLOFACIAL
+Sunday: 2pm -6pm
+
+RESTORATIVE DENTAL
+Tuesday: 2pm -6pm
+
+ORTHODONTICS
+Tuesday:10am -2pm
+
+
+OPTOMETRY/EYE TESTS/GLASSES
+Comprehensive eye examinations. Ophthalmology services. Cataract evaluation and surgery. Glaucoma diagnosis and treatment
+Vision correction and eye disease management
+Monday-Saturday: 8am -5pm
+
+LABORATORY SERVICES
+Routine blood and urine tests. Reliable and timely diagnostic testing
+Monday - Saturday: 8am -2pm
+Sunday:2pm - 6pm
+
+
+CONTACT US
+If you have any questions, any feedback or you just want to contact us, please visit us at the address below:
+1, Fola Agoro Street
+Off Bajulaye Road,
+Somulu, Lagos.
++234 9157360689
++234 9093933524
+
+care@datimaspecialistclinics.com
+admin@datimaspecialistclinics.com
+Use this address, phone numbers and email address for all fliers, info and bronchures of Datima Specialist Clinics
+
+
