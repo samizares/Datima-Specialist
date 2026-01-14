@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cloneElement } from "react";
+import type { ReactElement } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -24,7 +25,7 @@ const SidebarItem = ({ isOpen, isActive, navItem }: SidebarItemProps) => {
           isActive && "bg-muted font-bold hover:bg-muted"
         )}
       >
-        {cloneElement(navItem.icon, {
+        {cloneElement(navItem.icon as ReactElement<{ className?: string }>, {
           className: "h-5 w-5",
         })}
         <span
