@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model User {
+  id           			String    @id @default(cuid())
+  username     			String    @unique
+  email        			String    @unique
+  emailVerified     		Boolean   @default(false)
+  passwordHash 			String
+  sessions     			Session[]
+  passwordResetTokens     	PasswordResetToken[]
+  emailVerificationTokens 	EmailVerificationToken[]
+  blogs                Blog[]
+ 
+  }
+
+model Client {
+  id          	 	String    @id @default(cuid())
+  createdAt 		  DateTime     @default(now())
+  updatedAt 		  DateTime     @updatedAt
+  firstName    		String
+  lastName     		String
+  telephone    		String	@unique
+  address      		String
+  appointments  	Appointment[]   
+  messages     		Message[] 
+  status      		ClientStatus @default(PROSPECT)
+  attachmentId     String
+  Testimonials     Testimonial[]
+
+}
+
+
+model Session {
+  id        		String   @id
+  expiresAt 		DateTime
+  userId    		String
+  user      		User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  tokenHash 		String   @unique
+  expiresAt 		DateTime
+  userId    		String
+  user      		User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model EmailVerificationToken {
+  id        		String   @id @default(cuid())
+  createdAt 		DateTime @default(now())
+  code      		String
+  expiresAt 		DateTime
+  email     		String
+  userId    		String
+  user      		User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Appointment {
+  id        		String       @id @default(cuid())
+  createdAt 		DateTime     @default(now())
+  updatedAt 		DateTime     @updatedAt
+  setTime   		DateTime
+  status    		AppointmentStatus @default(UNFILL)
+  clientId  		String
+  client    		Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)  
+  clinicId  		String    
+  clinic   		  Clinic 	 @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  doctorId		  String?
+  doctor 		    Doctor?  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+}
+
+model Attachment {
+  id   		          String @id @default(cuid())
+  name 		          String
+  attachmentTpe    	AttachmentType 
+  blogs             Blog[]
+  }
+
+enum AttachmentType {
+  CLIENT          
+  ADMIN
+  DOCTOR     
+  BLOG
+}
+
+model Blog {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  title         String
+  tags          String
+  content       String   @db.VarChar(2000)
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  attachmentId  String
+  attachment    Attachment @relation(fields: [attachmentId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([attachmentId])
+}
+
+
+model Clinic {
+  id	    	    String       	@id @default(cuid())
+  name	        String	 	@unique
+  desc	  	    String
+  schedules	    ClinicSchedule[]
+  doctors       Doctor[]
+  appointments  Appointment[]
+  attachmentId     String
+  docSchedules  DoctorSchedule[]
+
+}
+
+model ClinicSchedule {
+  id		    String		@id @default(cuid())
+  days		  String
+  openTime	String @map("open_time") @db.VarChar(7) //(e,g., "08:00am)"
+  closeTime	String @map("close_time") @db.VarChar(7)
+  clinic	  Clinic		@relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinicId	String
+  doctorId	String?
+  doctor	  Doctor? 	@relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  
+
+  @@map("clinic_schedule")
+}
+   
+  
+
+model Doctor {
+  id     	String    @id @default(cuid())
+  firstName   	String
+  lastName    	String
+  email       	String
+  createdAt   	DateTime @default(now())
+  clinicId	     String?
+  clinic	      Clinic?		@relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointments  Appointment[]
+  docSchedules	DoctorSchedule[]
+  cliSchedules	ClinicSchedule[]
+  attachmentId   String?
+  
+}
+
+model DoctorSchedule {
+  id     	    String	@id @default(cuid())
+  doctor    	Doctor  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  doctorId 	  String 
+  day		      String	
+  startTime	  String @map("start_time") @db.VarChar(7) //(e,g., "08:00am")
+  endTime	    String @map("end_time") @db.VarChar(7) //(e,g., "08:00am")
+  clinicId	  String
+  clinic	    Clinic	@relation(fields: [clinicId], references: [id], onDelete: Cascade)
+}
+
+model Testimonial {
+  id   		      String   @id @default(cuid())
+  createdAt 		DateTime     @default(now())
+  updatedAt 		DateTime     @updatedAt
+  client 	       Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId    	String
+  content  	    String
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  content   String   @db.VarChar(1024)
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId  String
+  
+
+  @@index([clientId])
+}
+model Campaigns {
+  id	String    @id @default(cuid())
+  name 	String
+  catchphrase   String
+  startDate DateTime
+  endDate   DateTime
+
+}
+
+enum ClientStatus {
+  PROSPECT
+  PATIENT 
+}
+enum AppointmentStatus {
+  UNFILL
+  FILL
+  DONE
+}

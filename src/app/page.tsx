@@ -1,4 +1,3 @@
-import Image from "next/image";
 import clsx from "clsx";
 import {
   ArrowRight,
@@ -74,13 +73,6 @@ const serviceLines = [
   },
 ];
 
-const navItems = [
-  { label: "Home", href: "#home" },
-  { label: "About Us", href: "#about" },
-  { label: "Our Services", href: "#services" },
-  { label: "Contact Us", href: "#contact" },
-  { label: "Book An Appointment", href: "#booking" },
-];
 const badgeStyles = (label: string) =>
   clsx("rounded-full px-3 py-1 text-xs font-semibold bg-secondary text-foreground", {
     "bg-emerald-100 text-emerald-800": label.toLowerCase().includes("state"),
@@ -91,51 +83,6 @@ const badgeStyles = (label: string) =>
 export default function Home() {
   return (
     <main className="bg-background">
-      <header className="fixed left-0 right-0 top-0 z-50 w-full bg-white/80 px-6 shadow-sm backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-6 py-4 lg:py-5">
-          <a href="#home" className="flex items-center gap-0 sm:gap-0.5">
-            <div className="relative h-10 w-28 sm:w-32">
-              <Image
-                src="/assets/Datima-enhance-logo.png"
-                alt="Datima Specialist Clinics logo"
-                fill
-                sizes="144px"
-                className="object-contain"
-                priority
-              />
-            </div>
-            <span className="whitespace-nowrap font-[family-name:var(--font-display)] text-xl font-black leading-none tracking-tight text-foreground sm:text-2xl">
-              Datima Specialist Clinics
-            </span>
-          </a>
-          <nav className="flex flex-1 items-center justify-end gap-4 text-sm font-semibold text-foreground">
-            {navItems.map((item) => {
-              const isCTA = item.label === "Book An Appointment";
-              if (isCTA) {
-                return (
-                  <Button key={item.label} asChild size="sm" className="gap-2">
-                    <a href={item.href}>
-                      {item.label}
-                      <ArrowRight className="h-4 w-4" aria-hidden />
-                    </a>
-                  </Button>
-                );
-              }
-
-              return (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className="rounded-full px-3 py-2 transition hover:bg-primary/10 hover:text-primary"
-                >
-                  {item.label}
-                </a>
-              );
-            })}
-          </nav>
-        </div>
-      </header>
-
       <HomeGallery />
 
       <div className="relative isolate">
