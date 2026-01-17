@@ -9,12 +9,13 @@ import {
   toActionState,
 } from "@/components/form/utils/to-action-state";
 import { hashPassword } from "@/features/password/utils/hash-and-verify";
-import { inngest } from "@/lib/inngest";
 import { createSession } from "@/lib/lucia";
 import { prisma } from "@/lib/prisma";
-import { ticketsPath } from "@/paths";
+import { homePath } from "@/paths";
 import { generateRandomToken } from "@/utils/crypto";
+import { sendEmailVerification } from "../emails/send-email-verification";
 import { setSessionCookie } from "../utils/session-cookie";
+import { generateEmailVerificationCode } from "../utils/generate-email-verification-code";
 
 const signUpSchema = z
   .object({
@@ -56,35 +57,20 @@ export const signUp = async (_actionState: ActionState, formData: FormData) => {
       },
     });
 
-    const invitations = await prisma.invitation.findMany({
-      where: {
-        email,
-      },
-    });
+    const verificationCode = await generateEmailVerificationCode(
+      user.id,
+      user.email
+    );
 
-    await prisma.$transaction([
-      prisma.invitation.deleteMany({
-        where: {
-          email,
-        },
-      }),
+    const result = await sendEmailVerification(
+      user.username,
+      user.email,
+      verificationCode
+    );
 
-      prisma.membership.createMany({
-        data: invitations.map((invitation) => ({
-          organizationId: invitation.organizationId,
-          userId: user.id,
-          membershipRole: "MEMBER",
-          isActive: false,
-        })),
-      }),
-    ]);
-
-    await inngest.send({
-      name: "app/auth.sign-up",
-      data: {
-        userId: user.id,
-      },
-    });
+    if (result.error) {
+      return toActionState("ERROR", "Failed to send verification email");
+    }
 
     const sessionToken = generateRandomToken();
     const session = await createSession(sessionToken, user.id);
@@ -105,5 +91,5 @@ export const signUp = async (_actionState: ActionState, formData: FormData) => {
     return fromErrorToActionState(error, formData);
   }
 
-  redirect(ticketsPath());
+  redirect(homePath());
 };

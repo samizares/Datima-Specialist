@@ -10,7 +10,7 @@ import {
 } from "@/components/form/utils/to-action-state";
 import { createSession } from "@/lib/lucia";
 import { prisma } from "@/lib/prisma";
-import { ticketsPath } from "@/paths";
+import { homePath } from "@/paths";
 import { generateRandomToken } from "@/utils/crypto";
 import { getAuthOrRedirect } from "../queries/get-auth-or-redirect";
 import { setSessionCookie } from "../utils/session-cookie";
@@ -26,8 +26,6 @@ export const emailVerification = async (
 ) => {
   const { user } = await getAuthOrRedirect({
     checkEmailVerified: false,
-    checkOrganization: false,
-    checkActiveOrganization: false,
   });
 
   try {
@@ -63,5 +61,5 @@ export const emailVerification = async (
   }
 
   await setCookieByKey("toast", "Email verified");
-  redirect(ticketsPath());
+  redirect(homePath());
 };

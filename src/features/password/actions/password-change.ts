@@ -7,8 +7,9 @@ import {
   toActionState,
 } from "@/components/form/utils/to-action-state";
 import { getAuthOrRedirect } from "@/features/auth/queries/get-auth-or-redirect";
-import { inngest } from "@/lib/inngest";
 import { prisma } from "@/lib/prisma";
+import { sendEmailPasswordReset } from "../emails/send-email-password-reset";
+import { generatePasswordResetLink } from "../utils/generate-password-reset-link";
 import { verifyPasswordHash } from "../utils/hash-and-verify";
 
 const passwordChangeSchema = z.object({
@@ -42,12 +43,16 @@ export const passwordChange = async (
       return toActionState("ERROR", "Incorrect password", formData);
     }
 
-    await inngest.send({
-      name: "app/password.password-reset",
-      data: {
-        userId: user.id,
-      },
-    });
+    const passwordResetLink = await generatePasswordResetLink(user.id);
+    const result = await sendEmailPasswordReset(
+      user.username,
+      user.email,
+      passwordResetLink
+    );
+
+    if (result.error) {
+      return toActionState("ERROR", "Failed to send password reset email");
+    }
   } catch (error) {
     return fromErrorToActionState(error, formData);
   }

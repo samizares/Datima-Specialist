@@ -1,7 +1,6 @@
 "use server";
 
-import { AttachmentEntity } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+import { AttachmentType } from "@prisma/client";
 import { z } from "zod";
 import {
   ActionState,
@@ -9,8 +8,6 @@ import {
   toActionState,
 } from "@/components/form/utils/to-action-state";
 import { getAuthOrRedirect } from "@/features/auth/queries/get-auth-or-redirect";
-import { isOwner } from "@/features/auth/utils/is-owner";
-import { ticketPath } from "@/paths";
 import { filesSchema } from "../schema/files";
 import * as attachmentService from "../service";
 
@@ -19,29 +16,15 @@ const createAttachmentsSchema = z.object({
 });
 
 type CreateAttachmentsArgs = {
-  entityId: string;
-  entity: AttachmentEntity;
+  attachmentType: AttachmentType;
 };
 
 export const createAttachments = async (
-  { entityId, entity }: CreateAttachmentsArgs,
+  { attachmentType }: CreateAttachmentsArgs,
   _actionState: ActionState,
   formData: FormData
 ) => {
-  const { user } = await getAuthOrRedirect();
-
-  const subject = await attachmentService.getAttachmentSubject(
-    entityId,
-    entity
-  );
-
-  if (!subject) {
-    return toActionState("ERROR", "Subject not found");
-  }
-
-  if (!isOwner(user, subject)) {
-    return toActionState("ERROR", "Not the owner of this subject");
-  }
+  await getAuthOrRedirect();
 
   try {
     const { files } = createAttachmentsSchema.parse({
@@ -49,16 +32,12 @@ export const createAttachments = async (
     });
 
     await attachmentService.createAttachments({
-      subject,
-      entity,
-      entityId,
+      attachmentType,
       files,
     });
   } catch (error) {
     return fromErrorToActionState(error);
   }
-
-  revalidatePath(ticketPath(subject.ticketId));
 
   return toActionState("SUCCESS", "Attachment(s) uploaded");
 };

@@ -5,13 +5,5 @@ export const getAttachment = async (id: string) => {
     where: {
       id,
     },
-    include: {
-      ticket: true,
-      comment: {
-        include: {
-          ticket: true,
-        },
-      },
-    },
   });
 };

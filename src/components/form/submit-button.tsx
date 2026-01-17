@@ -7,7 +7,7 @@ import { Button, ButtonProps } from "../ui/button";
 
 type SubmitButtonProps = {
   label?: string;
-  icon?: React.ReactElement;
+  icon?: React.ReactElement<{ className?: string }>;
   variant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
 };

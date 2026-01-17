@@ -5,33 +5,19 @@ import {
   toActionState,
 } from "@/components/form/utils/to-action-state";
 import { getAuthOrRedirect } from "@/features/auth/queries/get-auth-or-redirect";
-import { isOwner } from "@/features/auth/utils/is-owner";
-import { inngest } from "@/lib/inngest";
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { s3 } from "@/lib/aws";
 import { prisma } from "@/lib/prisma";
 import * as attachmentData from "../data";
-import * as attachmentSubjectDTO from "../dto/attachment-subject-dto";
+import { generateS3Key } from "../utils/generate-s3-key";
 
 export const deleteAttachment = async (id: string) => {
-  const { user } = await getAuthOrRedirect();
+  await getAuthOrRedirect();
 
   const attachment = await attachmentData.getAttachment(id);
 
-  let subject;
-  switch (attachment?.entity) {
-    case "TICKET":
-      subject = attachmentSubjectDTO.fromTicket(attachment.ticket);
-      break;
-    case "COMMENT":
-      subject = attachmentSubjectDTO.fromComment(attachment.comment);
-      break;
-  }
-
-  if (!subject || !attachment) {
-    return toActionState("ERROR", "Subject not found");
-  }
-
-  if (!isOwner(user, subject)) {
-    return toActionState("ERROR", "Not authorized");
+  if (!attachment) {
+    return toActionState("ERROR", "Attachment not found");
   }
 
   try {
@@ -41,16 +27,16 @@ export const deleteAttachment = async (id: string) => {
       },
     });
 
-    await inngest.send({
-      name: "app/attachment.deleted",
-      data: {
-        organizationId: subject.organizationId,
-        entityId: subject.entityId,
-        entity: attachment.entity,
-        fileName: attachment.name,
-        attachmentId: attachment.id,
-      },
-    });
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: generateS3Key({
+          attachmentType: attachment.attachmentTpe,
+          fileName: attachment.name,
+          attachmentId: attachment.id,
+        }),
+      })
+    );
   } catch (error) {
     return fromErrorToActionState(error);
   }

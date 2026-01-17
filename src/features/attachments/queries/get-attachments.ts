@@ -1,26 +1,12 @@
-import { AttachmentEntity } from "@prisma/client";
+import { AttachmentType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export const getAttachments = async (
-  entityId: string,
-  entity: AttachmentEntity
+  attachmentType: AttachmentType
 ) => {
-  switch (entity) {
-    case "TICKET": {
-      return await prisma.attachment.findMany({
-        where: {
-          ticketId: entityId,
-        },
-      });
-    }
-    case "COMMENT": {
-      return await prisma.attachment.findMany({
-        where: {
-          commentId: entityId,
-        },
-      });
-    }
-    default:
-      return [];
-  }
+  return await prisma.attachment.findMany({
+    where: {
+      attachmentTpe: attachmentType,
+    },
+  });
 };

@@ -1,21 +1,16 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { AttachmentEntity } from "@prisma/client";
+import { AttachmentType } from "@prisma/client";
 import { s3 } from "@/lib/aws";
 import * as attachmentData from "../data";
-import * as attachmentSubjectDTO from "../dto/attachment-subject-dto";
 import { generateS3Key } from "../utils/generate-s3-key";
 
 type CreateAttachmentsArgs = {
-  subject: attachmentSubjectDTO.Type;
-  entity: AttachmentEntity;
-  entityId: string;
+  attachmentType: AttachmentType;
   files: File[];
 };
 
 export const createAttachments = async ({
-  subject,
-  entity,
-  entityId,
+  attachmentType,
   files,
 }: CreateAttachmentsArgs) => {
   const attachments = [];
@@ -26,8 +21,7 @@ export const createAttachments = async ({
 
       const attachment = await attachmentData.createAttachment({
         name: file.name,
-        entity,
-        entityId,
+        attachmentType,
       });
 
       attachments.push(attachment);
@@ -36,9 +30,7 @@ export const createAttachments = async ({
         new PutObjectCommand({
           Bucket: process.env.AWS_BUCKET_NAME,
           Key: generateS3Key({
-            organizationId: subject.organizationId,
-            entityId,
-            entity,
+            attachmentType,
             fileName: file.name,
             attachmentId: attachment.id,
           }),

@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type MouseEventHandler,
 } from "react";
 import { toast } from "sonner";
 import {
@@ -24,7 +25,9 @@ type UseConfirmDialogArgs = {
   title?: string;
   description?: string;
   action: () => Promise<ActionState | undefined>;
-  trigger: React.ReactElement | ((isLoading: boolean) => React.ReactElement);
+  trigger:
+    | React.ReactElement<{ onClick?: MouseEventHandler }>
+    | ((isLoading: boolean) => React.ReactElement<{ onClick?: MouseEventHandler }>);
   onSuccess?: (actionState: ActionState) => void;
 };
 

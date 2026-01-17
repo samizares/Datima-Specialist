@@ -20,7 +20,7 @@ const AttachmentDeleteButton = ({
   const [deleteButton, deleteDialog] = useConfirmDialog({
     action: deleteAttachment.bind(null, id),
     trigger: (isPending) => (
-      <Button variant="ghost" size="xs">
+      <Button variant="ghost" size="icon">
         {isPending ? (
           <LucideLoaderCircle className="h-4 w-4 animate-spin" />
         ) : (

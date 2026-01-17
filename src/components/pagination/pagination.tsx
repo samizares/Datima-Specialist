@@ -1,5 +1,4 @@
 import { useTransition } from "react";
-import { PaginatedData } from "@/types/pagination";
 import { Button } from "../ui/button";
 import {
   Select,
@@ -15,10 +14,15 @@ type PageAndSize = {
   size: number;
 };
 
+type PaginatedMetadata = {
+  count: number;
+  hasNextPage: boolean;
+};
+
 type PaginationProps = {
   pagination: PageAndSize;
   onPagination: (pagination: PageAndSize) => void;
-  paginatedMetadata: PaginatedData<unknown>["metadata"];
+  paginatedMetadata: PaginatedMetadata;
 };
 
 const Pagination = ({

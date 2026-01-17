@@ -1,6 +1,6 @@
 "use client";
 
-import { AttachmentEntity } from "@prisma/client";
+import { AttachmentType } from "@prisma/client";
 import { useActionState } from "react";
 import { FieldError } from "@/components/form/field-error";
 import { Form } from "@/components/form/form";
@@ -11,20 +11,18 @@ import { createAttachments } from "../actions/create-attachments";
 import { ACCEPTED } from "../constants";
 
 type AttachmentCreateFormProps = {
-  entityId: string;
-  entity: AttachmentEntity;
+  attachmentType: AttachmentType;
   buttons?: React.ReactNode;
   onSuccess?: () => void;
 };
 
 const AttachmentCreateForm = ({
-  entityId,
-  entity,
+  attachmentType,
   buttons,
   onSuccess,
 }: AttachmentCreateFormProps) => {
   const [actionState, action] = useActionState(
-    createAttachments.bind(null, { entityId, entity }),
+    createAttachments.bind(null, { attachmentType }),
     EMPTY_ACTION_STATE
   );
 

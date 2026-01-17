@@ -16,16 +16,9 @@ const renderLink = ({ attributes, content }: IntermediateRepresentation) => {
     }
   };
 
-  let maybeParsedContent = content;
-  if (url.startsWith("/tickets/")) {
-    maybeParsedContent = url.replace("/tickets/", "Ticket: #");
-  }
-
-  // add other feature paths if needed
-
   return (
     <Link href={url} {...props} onClick={handleClick} className="underline">
-      {maybeParsedContent}
+      {content}
     </Link>
   );
 };

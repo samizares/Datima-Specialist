@@ -1,6 +1,6 @@
 "use client";
 
-import { AttachmentEntity } from "@prisma/client";
+import { AttachmentType } from "@prisma/client";
 import { PaperclipIcon } from "lucide-react";
 import { useState } from "react";
 import { SubmitButton } from "@/components/form/submit-button";
@@ -17,14 +17,12 @@ import {
 import { AttachmentCreateForm } from "./attachment-create-form";
 
 type AttachmentCreateButtonProps = {
-  entityId: string;
-  entity: AttachmentEntity;
+  attachmentType: AttachmentType;
   onCreateAttachment?: () => void;
 };
 
 const AttachmentCreateButton = ({
-  entityId,
-  entity,
+  attachmentType,
   onCreateAttachment,
 }: AttachmentCreateButtonProps) => {
   const [open, setOpen] = useState(false);
@@ -51,8 +49,7 @@ const AttachmentCreateButton = ({
           <DialogDescription>Attach images or PDFs</DialogDescription>
         </DialogHeader>
         <AttachmentCreateForm
-          entityId={entityId}
-          entity={entity}
+          attachmentType={attachmentType}
           buttons={
             <DialogFooter>
               <Button type="button" variant="outline" onClick={handleCancel}>
