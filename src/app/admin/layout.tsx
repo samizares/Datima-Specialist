@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Manrope, Space_Grotesk } from "next/font/google";
-import "./globals.css";
 import { Header } from "@/components/header";
 import { navItems } from "@/components/nav-items";
 
