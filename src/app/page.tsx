@@ -1,6 +1,8 @@
 import clsx from "clsx";
+import Image from "next/image";
 import {
   ArrowRight,
+  CheckCircle2,
   MapPin,
   PhoneCall,
   Sparkles,
@@ -12,78 +14,137 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HomeGallery } from "@/components/home-gallery";
+import { formatDisplayDate, posts as blogPosts } from "@/features/blog/content";
 
 const serviceLines = [
   {
     title: "General Medical/Dental Clinics",
     description:
-      "Routine medical consultations. Diagnosis and treatment of common illnesses. Preventive care and health screenings. Chronic disease management. Comprehensive oral health services, including: General Dentistry. Oral & Maxillofacial Surgery. Restorative Dentistry. Orthodontics. Preventive and cosmetic dental care.",
+      "Our General and Dental clinic is focused on diagnosis and treatment of common illness, oral health, including the teeth, gums, and jaw. We treats conditions such as tooth decay, gum disease (gingivitis and periodontitis), tooth infections, oral pain, misaligned teeth, impacted wisdom teeth, oral lesions, jaw disorders, and cosmetic dental concerns.",
     schedule: "Mon: 8am - Saturday 9pm",
+    image: "/assets/dental.png",
   },
   {
     title: "Cardiology",
-    description: "Hypertension, heart related diseases.",
+    description: "Our Cardiology clinic diagnose, treat, and prevent diseases of the cardiovascular system. We manage conditions such as coronary artery disease, heart attacks, heart failure, arrhythmias (irregular heartbeats), hypertension (high blood pressure), congenital and valvular heart disease. We also address risk factors like high cholesterol, diabetes, obesity, and other heart disease.",
     schedule: "Wednesday: 12 noon - 5pm",
+    image: "/assets/cardiology.png",
   },
   {
     title: "ENT (Ear, Nose and Throat)",
-    description: "Ear, nose and throat conditions.",
+    description: "Our ENT clinic treats conditions affecting hearing, balance, breathing, speech, and swallowing. We treat common illnesses like ear infections, hearing loss, sinusitis, allergies, tonsillitis,  and throat or laryngeal disorders.",
     schedule: "Saturday: 10am - 2pm",
+    image: "/assets/ENT.png",
   },
   {
     title: "Obstetrics & Gynaecology",
-    description: "Pregnancy, infertility, fibroid, endometriosis, and more.",
+    description: "Our OB-GYN clinic is focused on women’s reproductive health, pregnancy, and childbirth. We treats conditions such as menstrual disorders, infertility, pregnancy complications, fibroids, ovarian cysts, endometriosis, pelvic infections, menopause-related issues, and many others.",
     schedule: "Sunday: 10am - 2pm",
+    image: "/assets/ob-gyn.png",
   },
   {
     title: "Endocrinology",
     description: "Diabetes, thyroid diseases, and related conditions.",
     schedule: "Sunday: 2pm - 6pm",
+    image: "/assets/lab-test.png",
   },
   {
     title: "Paediatrics (Children Clinic)",
     description: "Children clinic services.",
     schedule: "Friday: 10am - 2pm",
+    image: "/assets/paedatrics-care.png",
   },
   {
     title: "Oral and Maxillofacial",
     description: "Oral and maxillofacial care.",
     schedule: "Sunday: 2pm - 6pm",
+    image: "/assets/dental-xray.png",
   },
   {
     title: "Restorative Dental",
     description: "Restorative dental care.",
     schedule: "Tuesday: 2pm - 6pm",
+    image: "/assets/dental-xray-2.png",
   },
   {
     title: "Orthodontics",
     description: "Orthodontic treatments and alignment care.",
     schedule: "Tuesday: 10am - 2pm",
+    image: "/assets/dental-xray.png",
   },
   {
     title: "Optometry/Eye Tests/Glasses",
     description:
       "Comprehensive eye examinations. Ophthalmology services. Cataract evaluation and surgery. Glaucoma diagnosis and treatment. Vision correction and eye disease management.",
     schedule: "Monday-Saturday: 8am - 5pm",
+    image: "/assets/optometry-care.png",
   },
   {
     title: "Laboratory Services",
     description: "Routine blood and urine tests. Reliable and timely diagnostic testing.",
     schedule: "Monday - Saturday: 8am - 2pm. Sunday: 2pm - 6pm",
+    image: "/assets/lab-test.png",
   },
 ];
 
-const badgeStyles = (label: string) =>
-  clsx("rounded-full px-3 py-1 text-xs font-semibold bg-secondary text-foreground", {
-    "bg-emerald-100 text-emerald-800": label.toLowerCase().includes("state"),
-    "bg-amber-100 text-amber-800": label.toLowerCase().includes("appointment"),
-    "bg-sky-100 text-sky-800": label.toLowerCase().includes("specialist"),
-  });
+const badgeStyles = () =>
+  clsx(
+    "rounded-full px-3 py-1 text-xs font-semibold border border-border/70 bg-white text-foreground"
+  );
 
 export default function Home() {
   return (
     <main className="bg-background">
       <HomeGallery />
+
+      <section className="mx-auto w-full max-w-6xl px-6 py-12">
+        <div className="grid items-stretch gap-20 rounded-[28px] bg-white p-6 text-foreground shadow-xl lg:grid-cols-[1fr_1.1fr] lg:p-10">
+          <div className="relative min-h-[320px] overflow-hidden rounded-2xl">
+            <Image
+              src="/assets/test-smiling.png"
+              alt="Patient smiling at Datima Specialist Clinics"
+              fill
+              sizes="(min-width: 1024px) 45vw, 100vw"
+              className="object-cover"
+              priority
+            />
+          </div>
+
+          <div className="flex flex-col justify-center gap-5">
+            <h2 className="font-[family-name:var(--font-display)] text-3xl font-black leading-tight sm:text-4xl">
+              Welcome to Datima Specialist Clinics
+            </h2>
+            <p className="text-base text-muted-foreground">
+              Datima Specialist Clinics is a patient-centered healthcare facility committed to delivering top-notch
+              medical services in a warm, professional, and compassionate environment.
+            </p>
+            <p className="text-lg font-semibold text-foreground">Why Choose Datima?</p>
+
+            <ul className="space-y-3 text-sm text-foreground sm:text-base">
+              {[
+                "Datima Specialist Clinics is home to renowned specialists in diverse medical fields.",
+                "Datima Specilists clinics is equipped with state-of-the-art medical equipment.",
+                "We combine advanced technology with proven medical expertise.",
+                "Our multidisciplinary team delivers personalized care.",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 text-blue-700" aria-hidden />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div>
+              <Button asChild className="mt-2 rounded-full bg-blue-600 px-6 text-white hover:bg-blue-400 gap-2">
+                <a href="/appointment">
+                  Book An Appointment Now
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div className="relative isolate">
         <div className="pointer-events-none absolute inset-0 -z-10 opacity-80" aria-hidden>
@@ -93,101 +154,6 @@ export default function Home() {
         </div>
 
         <div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 pb-12 pt-12 lg:pt-16 lg:pb-16">
-          <section id="home" className="grid items-start gap-12 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="space-y-8">
-              <div className="flex flex-wrap items-center gap-3">
-                <Badge className="bg-primary/10 text-primary hover:bg-primary/20">Datima Specialist Clinics</Badge>
-                <Badge variant="outline" className="border-primary/30 text-primary">
-                  Patient-centered care in Lagos
-                </Badge>
-              </div>
-
-              <div className="space-y-4">
-                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
-                  Compassionate, professional, and trusted
-                </p>
-                <h1 className="font-[family-name:var(--font-display)] text-4xl leading-tight text-foreground sm:text-5xl lg:text-6xl">
-                  Your health and well-being come first.
-                </h1>
-                <p className="max-w-2xl text-lg text-muted-foreground">
-                  Datima Specialist Clinics is a patient-centered healthcare facility committed to delivering top-notch medical services in a warm, professional, and compassionate environment.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Button asChild className="gap-2">
-                  <a href="#booking">
-                    Book an appointment
-                    <ArrowRight className="h-4 w-4" aria-hidden />
-                  </a>
-                </Button>
-                <Button variant="outline" asChild className="gap-2 border-primary/30 text-primary">
-                  <a href="#services">View our services</a>
-                </Button>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-3">
-                {[
-                  "State-of-the-art equipment",
-                  "Renowned specialists",
-                  "Personalized, evidence-based care",
-                ].map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-center gap-2 rounded-xl border bg-white/70 px-3 py-3 text-sm shadow-sm backdrop-blur"
-                  >
-                    <Sparkles className="h-4 w-4 text-primary" aria-hidden />
-                    <span className="font-semibold text-foreground">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <Card className="border-primary/20 bg-white/80 shadow-lg backdrop-blur">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                <div>
-                  <CardTitle className="text-lg">Clinic promise</CardTitle>
-                  <p className="text-sm text-muted-foreground">Professional, trusted, and compassionate care</p>
-                </div>
-                <Badge className="bg-emerald-100 text-emerald-800" variant="secondary">
-                  Patient-centered
-                </Badge>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="rounded-xl border bg-secondary/50 p-4 shadow-sm">
-                  <div className="flex items-start gap-3">
-                    <span className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
-                      <Stethoscope className="h-5 w-5" aria-hidden />
-                    </span>
-                    <div className="space-y-2">
-                      <p className="font-semibold text-foreground">
-                        We combine advanced technology with proven medical expertise.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        From routine consultations to specialized care, we focus on accurate diagnosis, effective treatment, and excellent clinical outcomes.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="rounded-xl border bg-secondary/50 p-4 shadow-sm">
-                  <div className="flex items-start gap-3">
-                    <span className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
-                      <Sparkles className="h-5 w-5" aria-hidden />
-                    </span>
-                    <div className="space-y-2">
-                      <p className="font-semibold text-foreground">
-                        Our multidisciplinary team delivers personalized care.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Specialists across general medicine, cardiology, paediatrics, obstetrics and gynaecology, dental care, eye care, radiology, and laboratory services work together for each patient.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </section>
-
           <section id="about" className="space-y-6">
             <div className="flex flex-col gap-2">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">About us</p>
@@ -241,24 +207,79 @@ export default function Home() {
               <h3 className="font-[family-name:var(--font-display)] text-3xl text-foreground sm:text-4xl">
                 Comprehensive care across diverse medical fields.
               </h3>
-              <p className="max-w-3xl text-muted-foreground">
-                Datima Specialist Clinics offers a wide range of medical services delivered by experienced and dedicated specialists. Our services are provided on specific days and at scheduled times to ensure optimal care and specialist availability.
-              </p>
-              <p className="max-w-3xl text-muted-foreground">
-                To help us serve you better and reduce waiting time, we kindly encourage all patients to book an appointment in advance to see one of our specialists.
-              </p>
+              
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              {serviceLines.map((service) => (
-                <Card key={service.title} className="border-0 bg-white/90 shadow-md ring-1 ring-border/60">
-                  <CardHeader className="space-y-2">
-                    <CardTitle className="text-lg">{service.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{service.description}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <span className={badgeStyles(service.schedule)}>{service.schedule}</span>
-                  </CardContent>
+              {serviceLines.slice(0, 4).map((service) => (
+                <Card key={service.title} className="border border-border/70 bg-white/95 p-6 shadow-sm">
+                  <div className="flex gap-4">
+                    <div className="relative h-20 w-[85px] shrink-0 overflow-hidden rounded-2xl bg-secondary/60">
+                      <Image
+                        src={service.image}
+                        alt={service.title}
+                        fill
+                        sizes="85px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <CardTitle className="text-xl font-bold">{service.title}</CardTitle>
+                      <p className="text-sm text-muted-foreground">{service.description}</p>
+                    </div>
+                  </div>
+                  <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                    <span className={badgeStyles()}>{service.schedule}</span>
+                    <Button asChild className="gap-2 font-bold">
+                      <a href={`/our-services?service=${encodeURIComponent(service.title)}#booking`}>
+                        Book Appointment
+                        <ArrowRight className="h-4 w-4" aria-hidden />
+                      </a>
+                    </Button>
+                  </div>
                 </Card>
+              ))}
+            </div>
+            <p className="pt-2">
+              <Button asChild className="rounded-full bg-blue-600 px-6 text-white hover:bg-blue-700">
+                <a href="/our-services">MORE SERVICES</a>
+              </Button>
+            </p>
+          </section>
+
+          <section className="space-y-6">
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Blog</p>
+              <h3 className="font-[family-name:var(--font-display)] text-3xl text-foreground sm:text-4xl">
+                Latest stories from Datima Specialist Clinics.
+              </h3>
+            </div>
+            <div className="grid gap-6 md:grid-cols-3">
+              {blogPosts.slice(0, 3).map((post, index) => (
+                <article key={post.id} className="rounded-2xl border bg-white shadow-sm">
+                  <div className="relative h-48 w-full overflow-hidden rounded-t-2xl">
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      fill
+                      sizes="(min-width: 1024px) 30vw, 100vw"
+                      className="object-cover"
+                      priority={index === 0}
+                    />
+                  </div>
+                  <div className="space-y-4 p-5">
+                    <div className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                      {post.tags[0]} • {formatDisplayDate(post.createdAt, post.updatedAt)}
+                    </div>
+                    <h4 className="text-xl font-bold text-foreground">{post.title}</h4>
+                    <a
+                      href={`/blog/${post.id}`}
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-primary"
+                    >
+                      Read More
+                      <ArrowRight className="h-4 w-4" aria-hidden />
+                    </a>
+                  </div>
+                </article>
               ))}
             </div>
           </section>

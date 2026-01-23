@@ -25,6 +25,7 @@ model Client {
   updatedAt 		  DateTime     @updatedAt
   firstName    		String
   lastName     		String
+  email            String?
   telephone    		String	@unique
   address      		String
   appointments  	Appointment[]   

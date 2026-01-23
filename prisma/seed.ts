@@ -2,6 +2,11 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
+import {
+  categories,
+  popularTags,
+  posts as blogPosts,
+} from "../src/features/blog/content";
 
 const _dbUrl = process.env.DATABASE_URL;
 if (!_dbUrl || _dbUrl.includes("Concrete45Stron")) {
@@ -124,14 +129,15 @@ async function main() {
   );
 
   const blogAttachments = await Promise.all(
-    Array.from({ length: 4 }, (_, i) => {
-      const id = `attachment-blog-${i + 1}`;
+    blogPosts.map((post) => {
+      const id = `attachment-blog-${post.id}`;
+      const imageName = post.image.split("/").pop() || post.title;
       return prisma.attachment.upsert({
         where: { id },
         update: {},
         create: {
           id,
-          name: `Blog Attachment ${i + 1}`,
+          name: imageName,
           attachmentTpe: "BLOG",
         },
       });
@@ -139,19 +145,29 @@ async function main() {
   );
 
   await Promise.all(
-    Array.from({ length: 4 }, (_, i) => {
-      const id = `blog-${i + 1}`;
+    blogPosts.map((post, index) => {
+      const categoryTag = categories[index % categories.length]?.label;
+      const popularTag = popularTags[index % popularTags.length];
+      const tags = Array.from(
+        new Set([...(post.tags || []), categoryTag, popularTag].filter(Boolean))
+      ).join(", ");
+
       return prisma.blog.upsert({
-        where: { id },
-        update: {},
+        where: { id: post.id },
+        update: {
+          title: post.title,
+          tags,
+          content: post.content,
+          author: { connect: { id: users[index % users.length].id } },
+          attachment: { connect: { id: blogAttachments[index].id } },
+        },
         create: {
-          id,
-          title: `Blog Post ${i + 1}`,
-          tags: i % 2 === 0 ? "Dental, Wellness" : "Family Care, Prevention",
-          content:
-            "Datima Specialist Clinics shares practical healthcare guidance to help patients make informed choices. This sample blog entry outlines why routine checkups, early screening, and consistent follow-ups support long-term wellbeing. It highlights the importance of lifestyle habits, medication adherence, and knowing when to seek specialist input. Patients are encouraged to ask questions, track symptoms, and schedule appointments when changes appear. Our multidisciplinary team works together to offer clear explanations, collaborative treatment plans, and compassionate care. This placeholder content keeps seed data within the database length limits while demonstrating typical blog formatting and tone.",
-          author: { connect: { id: users[i].id } },
-          attachment: { connect: { id: blogAttachments[i].id } },
+          id: post.id,
+          title: post.title,
+          tags,
+          content: post.content,
+          author: { connect: { id: users[index % users.length].id } },
+          attachment: { connect: { id: blogAttachments[index].id } },
         },
       });
     })

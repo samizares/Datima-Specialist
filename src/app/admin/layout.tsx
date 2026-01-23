@@ -63,21 +63,8 @@ export default function RootLayout({
                 Patient-centered care, modern diagnostics, and trusted specialists focused on your long-term health.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3 text-sm font-semibold text-foreground">
-              {navItems.slice(0, 5).map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="rounded-full px-3 py-2 transition hover:bg-primary/10 hover:text-primary"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              <p>1, Fola Agoro Street, Off Bajulaye Road, Somulu, Lagos.</p>
-              <p>+234 9157360689 · care@datimaspecialistclinics.com</p>
-            </div>
+            
+            
           </div>
         </footer>
       </body>

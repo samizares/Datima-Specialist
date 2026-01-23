@@ -2,6 +2,7 @@
 
 import { CalendarClock, PhoneCall } from "lucide-react";
 import { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,15 +17,28 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 const services = [
-  "Cardiology & Vascular",
-  "Women’s Health",
-  "Imaging & Diagnostics",
+  "General Medical/Dental Clinics",
+  "Cardiology",
+  "ENT (Ear, Nose and Throat)",
+  "Obstetrics & Gynaecology",
   "Endocrinology",
-  "Mental Health",
+  "Paediatrics (Children Clinic)",
+  "Oral and Maxillofacial",
+  "Restorative Dental",
+  "Orthodontics",
+  "Optometry/Eye Tests/Glasses",
+  "Laboratory Services",
 ];
 
 export function AppointmentForm() {
-  const defaultService = useMemo(() => services[0], []);
+  const searchParams = useSearchParams();
+  const defaultService = useMemo(() => {
+    const requested = searchParams.get("service");
+    const matched = services.find(
+      (service) => service.toLowerCase() === requested?.toLowerCase()
+    );
+    return matched ?? services[0];
+  }, [searchParams]);
 
   return (
     <form
