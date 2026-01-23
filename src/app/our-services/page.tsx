@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import { Suspense } from "react";
 
 import { AppointmentForm } from "@/components/appointment-form";
 import { Button } from "@/components/ui/button";
@@ -148,7 +149,15 @@ export default function OurServicesPage() {
             </p>
           </div>
           <div className="mt-8">
-            <AppointmentForm />
+            <Suspense
+              fallback={
+                <div className="rounded-2xl border bg-card/80 p-6 text-sm text-muted-foreground shadow-sm">
+                  Loading booking form…
+                </div>
+              }
+            >
+              <AppointmentForm />
+            </Suspense>
           </div>
         </div>
       </section>

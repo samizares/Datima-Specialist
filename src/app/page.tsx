@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import Image from "next/image";
+import { Suspense } from "react";
 import {
   ArrowRight,
   CheckCircle2,
@@ -339,7 +340,15 @@ export default function Home() {
               </p>
             </div>
 
-            <AppointmentForm />
+            <Suspense
+              fallback={
+                <div className="rounded-2xl border bg-card/80 p-6 text-sm text-muted-foreground shadow-sm">
+                  Loading booking form…
+                </div>
+              }
+            >
+              <AppointmentForm />
+            </Suspense>
           </section>
         </div>
       </div>
