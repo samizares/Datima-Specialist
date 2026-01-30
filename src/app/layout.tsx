@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
 import { Manrope, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/header";
-import { navItems } from "@/components/nav-items";
+import { SiteFrame } from "@/components/layout/site-frame";
 
 const sans = Manrope({
   variable: "--font-sans",
@@ -38,48 +35,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className={`${sans.variable} ${display.variable} antialiased bg-background text-foreground`}>
-        <Header/>
-        {children}
-        <footer className="border-t bg-white">
-          <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="relative h-9 w-24">
-                  <Image
-                    src="/assets/Datima-enhance-logo.png"
-                    alt="Datima Specialist Clinics logo"
-                    fill
-                    sizes="96px"
-                    className="object-contain"
-                  />
-                </div>
-                <span className="font-[family-name:var(--font-display)] text-lg font-black text-foreground">
-                  Datima Specialist Clinics
-                </span>
-              </div>
-              <p className="max-w-md text-sm text-muted-foreground">
-                Patient-centered care, modern diagnostics, and trusted specialists focused on your long-term health.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3 text-sm font-semibold text-foreground">
-              {navItems.slice(0, 5).map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="rounded-full px-3 py-2 transition hover:bg-primary/10 hover:text-primary"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              <p>1, Fola Agoro Street, Off Bajulaye Road, Somulu, Lagos.</p>
-              <p>+234 9157360689 · care@datimaspecialistclinics.com</p>
-            </div>
-          </div>
-        </footer>
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+      <body className={`${sans.variable} ${display.variable} antialiased`}>
+        <SiteFrame>{children}</SiteFrame>
       </body>
     </html>
   );

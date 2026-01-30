@@ -17,6 +17,7 @@ const appointmentSchema = z.object({
   telephone: z.string().min(1, "Telephone is required"),
   clinicId: z.string().min(1, "Clinic is required"),
   doctorId: z.string().optional(),
+  setDay: z.string().min(1, "Appointment date is required"),
   setTime: z.string().min(1, "Appointment time is required"),
 });
 
@@ -35,12 +36,13 @@ export const bookAppointment = async (
       telephone: formData.get("telephone"),
       clinicId: formData.get("clinicId"),
       doctorId: formData.get("doctorId") || undefined,
+      setDay: formData.get("setDay"),
       setTime: formData.get("setTime"),
     });
 
-    const appointmentDate = new Date(data.setTime);
-    if (Number.isNaN(appointmentDate.getTime())) {
-      return toActionState("ERROR", "Appointment time is invalid", formData);
+    const appointmentDay = new Date(data.setDay);
+    if (Number.isNaN(appointmentDay.getTime())) {
+      return toActionState("ERROR", "Appointment date is invalid", formData);
     }
 
     const client = await prisma.client.upsert({
@@ -67,7 +69,8 @@ export const bookAppointment = async (
 
     const appointment = await prisma.appointment.create({
       data: {
-        setTime: appointmentDate,
+        setDay: appointmentDay,
+        setTime: data.setTime,
         clientId: client.id,
         clinicId: data.clinicId,
         ...(data.doctorId ? { doctorId: data.doctorId } : {}),
@@ -93,7 +96,8 @@ export const bookAppointment = async (
         `Address: ${client.address}`,
         `Clinic: ${appointment.clinic.name}`,
         `Doctor: ${doctorName}`,
-        `Appointment time: ${appointment.setTime.toISOString()}`,
+        `Appointment date: ${appointment.setDay.toDateString()}`,
+        `Appointment time: ${appointment.setTime}`,
         `Appointment ID: ${appointment.id}`,
       ].join("\n"),
     });

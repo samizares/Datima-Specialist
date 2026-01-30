@@ -8,14 +8,19 @@ datasource db {
 
 model User {
   id           			String    @id @default(cuid())
+  createdAt 		  DateTime     @default(now())
+  updatedAt 		  DateTime     @updatedAt
   username     			String    @unique
   email        			String    @unique
   emailVerified     		Boolean   @default(false)
+  isAdmin           Boolean   @default(false)
+  isSuperAdmin      Boolean   @default(false)
   passwordHash 			String
   sessions     			Session[]
   passwordResetTokens     	PasswordResetToken[]
   emailVerificationTokens 	EmailVerificationToken[]
   blogs                Blog[]
+  schedulePosts       SchedulePost[]
  
   }
 
@@ -70,7 +75,8 @@ model Appointment {
   id        		String       @id @default(cuid())
   createdAt 		DateTime     @default(now())
   updatedAt 		DateTime     @updatedAt
-  setTime   		DateTime
+  setDay        DateTime
+  setTime   		String
   status    		AppointmentStatus @default(UNFILL)
   clientId  		String
   client    		Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)  
@@ -84,9 +90,12 @@ model Appointment {
 
 model Attachment {
   id   		          String @id @default(cuid())
+  createdAt 		  DateTime     @default(now())
+  updatedAt 		  DateTime     @updatedAt
   name 		          String
   attachmentTpe    	AttachmentType 
   blogs             Blog[]
+  schedulePosts     SchedulePost[]
   }
 
 enum AttachmentType {
@@ -112,9 +121,29 @@ model Blog {
   @@index([attachmentId])
 }
 
+model SchedulePost {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  title         String
+  tags          String
+  content       String   @db.VarChar(2000)
+  scheduledFor  DateTime
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  attachmentId  String
+  attachment    Attachment @relation(fields: [attachmentId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([attachmentId])
+  @@index([scheduledFor])
+}
+
 
 model Clinic {
   id	    	    String       	@id @default(cuid())
+  createdAt 		  DateTime     @default(now())
+  updatedAt 		  DateTime     @updatedAt
   name	        String	 	@unique
   desc	  	    String
   schedules	    ClinicSchedule[]
@@ -127,6 +156,8 @@ model Clinic {
 
 model ClinicSchedule {
   id		    String		@id @default(cuid())
+  createdAt 		  DateTime     @default(now())
+  updatedAt 		  DateTime     @updatedAt
   days		  String
   openTime	String @map("open_time") @db.VarChar(7) //(e,g., "08:00am)"
   closeTime	String @map("close_time") @db.VarChar(7)
@@ -146,7 +177,8 @@ model Doctor {
   firstName   	String
   lastName    	String
   email       	String
-  createdAt   	DateTime @default(now())
+  createdAt 		  DateTime     @default(now())
+  updatedAt 		  DateTime     @updatedAt
   clinicId	     String?
   clinic	      Clinic?		@relation(fields: [clinicId], references: [id], onDelete: Cascade)
   appointments  Appointment[]
@@ -158,6 +190,8 @@ model Doctor {
 
 model DoctorSchedule {
   id     	    String	@id @default(cuid())
+  createdAt 		  DateTime     @default(now())
+  updatedAt 		  DateTime     @updatedAt
   doctor    	Doctor  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   doctorId 	  String 
   day		      String	
@@ -188,6 +222,8 @@ model Message {
 }
 model Campaigns {
   id	String    @id @default(cuid())
+  createdAt 		  DateTime     @default(now())
+  updatedAt 		  DateTime     @updatedAt
   name 	String
   catchphrase   String
   startDate DateTime

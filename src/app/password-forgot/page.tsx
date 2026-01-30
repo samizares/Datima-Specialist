@@ -3,7 +3,7 @@ import { PasswordForgotForm } from "@/features/password/components/password-forg
 
 const PasswordForgotPage = () => {
   return (
-    <div className="flex-1 flex flex-col justify-center items-center">
+    <div className="flex min-h-screen flex-1 items-center justify-center px-6 pb-28 pt-24">
       <CardCompact
         title="Forgot Password"
         description="Enter your email address to reset your password."

@@ -87,9 +87,11 @@ const badgeStyles = () =>
 export default function OurServicesPage() {
   return (
     <main className="bg-background">
-      <StaticPageHero title="Our Services" imagePosition="50% 15%" />
-      <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-12">
-        <div className="space-y-3">
+      <section id="services-hero">
+        <StaticPageHero title="Our Services" imagePosition="50% 15%" />
+      </section>
+      <section id="services-content" className="mx-auto flex w-full max-w-[1425px] flex-col gap-6 px-6 py-12">
+        <section id="services-intro" className="space-y-3">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Our services</p>
           <h2 className="font-[family-name:var(--font-display)] text-3xl text-foreground sm:text-4xl">
             Comprehensive care across diverse medical fields.
@@ -103,8 +105,8 @@ export default function OurServicesPage() {
             To help us serve you better and reduce waiting time, we kindly encourage all patients to book an appointment
             in advance to see one of our specialists.
           </p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
+        </section>
+        <section id="services-grid" className="grid gap-4 md:grid-cols-2">
           {serviceLines.map((service) => (
             <Card key={service.title} className="border border-border/70 bg-white/95 p-6 shadow-sm">
               <div className="flex gap-4">
@@ -127,7 +129,7 @@ export default function OurServicesPage() {
                   {service.schedule}
                 </span>
                 <Button asChild className="gap-2 font-bold">
-                  <a href={`/our-services?service=${encodeURIComponent(service.title)}#booking`}>
+                  <a href={`/our-services?service=${encodeURIComponent(service.title)}#services-booking`}>
                     Book Appointment
                     <ArrowRight className="h-4 w-4" aria-hidden />
                   </a>
@@ -135,9 +137,9 @@ export default function OurServicesPage() {
               </div>
             </Card>
           ))}
-        </div>
+        </section>
       </section>
-      <section id="booking" className="mx-auto w-full max-w-6xl px-6 pb-16">
+      <section id="services-booking" className="mx-auto w-full max-w-[1425px] px-6 pb-16">
         <div className="rounded-3xl border bg-white p-8 shadow-xl">
           <div className="space-y-3">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Book an appointment</p>

@@ -32,6 +32,7 @@ export const passwordForgot = async (
     }
 
     const passwordResetLink = await generatePasswordResetLink(user.id);
+    console.log("Password Reset Link:", passwordResetLink);
     const result = await sendEmailPasswordReset(
       user.username,
       user.email,

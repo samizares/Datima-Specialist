@@ -10,7 +10,7 @@ import {
 import { verifyPasswordHash } from "@/features/password/utils/hash-and-verify";
 import { createSession } from "@/lib/lucia";
 import { prisma } from "@/lib/prisma";
-import { homePath } from "@/paths";
+import { adminHomePath, homePath } from "@/paths";
 import { generateRandomToken } from "@/utils/crypto";
 import { setSessionCookie } from "../utils/session-cookie";
 
@@ -46,5 +46,5 @@ export const signIn = async (_actionState: ActionState, formData: FormData) => {
     return fromErrorToActionState(error, formData);
   }
 
-  redirect(homePath());
+  redirect(adminHomePath());
 };

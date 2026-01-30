@@ -96,9 +96,11 @@ const badgeStyles = () =>
 export default function Home() {
   return (
     <main className="bg-background">
-      <HomeGallery />
+      <section id="home-gallery">
+        <HomeGallery />
+      </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 py-12">
+      <section id="intro" className="mx-auto w-full max-w-[1425px] px-6 py-12">
         <div className="grid items-stretch gap-20 rounded-[28px] bg-white p-6 text-foreground shadow-xl lg:grid-cols-[1fr_1.1fr] lg:p-10">
           <div className="relative min-h-[320px] overflow-hidden rounded-2xl">
             <Image
@@ -147,55 +149,97 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="relative isolate">
+      <section id="home-content" className="relative isolate">
         <div className="pointer-events-none absolute inset-0 -z-10 opacity-80" aria-hidden>
           <div className="absolute -left-32 top-10 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
           <div className="absolute right-0 top-24 h-72 w-72 rounded-full bg-emerald-200/40 blur-3xl" />
           <div className="absolute bottom-10 left-12 h-48 w-48 rounded-full bg-amber-200/30 blur-3xl" />
         </div>
 
-        <div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 pb-12 pt-12 lg:pt-16 lg:pb-16">
+        <div className="mx-auto flex max-w-[1425px] flex-col gap-24 px-6 pb-16 pt-16 lg:pt-20 lg:pb-20">
           <section id="about" className="space-y-6">
             <div className="flex flex-col gap-2">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">About us</p>
-              <h2 className="font-[family-name:var(--font-display)] text-3xl text-foreground sm:text-4xl">
+              <p className="pl-8 text-center text-base font-semibold uppercase tracking-[0.28em] text-primary">
+                About us
+              </p>
+              <h2 className="pl-8 text-center font-[family-name:var(--font-display)] text-4xl text-foreground sm:text-5xl">
                 Professional, compassionate care you can trust.
               </h2>
             </div>
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 pl-8 md:grid-cols-2">
               <Card className="border-0 bg-white/90 shadow-lg ring-1 ring-border/70">
-                <CardHeader className="space-y-2">
+                <CardHeader className="space-y-3">
+                  <div className="relative h-64 w-full overflow-hidden rounded-xl">
+                    <Image
+                      src="/assets/test-smiling.png"
+                      alt="Patient-centered care at Datima Specialist Clinics"
+                      fill
+                      sizes="(min-width: 768px) 40vw, 90vw"
+                      className="object-cover object-top"
+                    />
+                  </div>
                   <CardTitle className="text-lg leading-tight">
                     Datima Specialist Clinics is a patient-centered healthcare facility.
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    We are committed to delivering top-notch medical services in a warm, professional, and compassionate environment.
+                    We deliver attentive, coordinated care in a warm, professional environment where every visit feels supported.
                   </p>
                 </CardHeader>
               </Card>
               <Card className="border-0 bg-white/90 shadow-lg ring-1 ring-border/70">
-                <CardHeader className="space-y-2">
+                <CardHeader className="space-y-3">
+                  <div className="relative h-64 w-full overflow-hidden rounded-xl">
+                    <Image
+                      src="/assets/optometry-care.png"
+                      alt="Comprehensive wellness and preventive care"
+                      fill
+                      sizes="(min-width: 768px) 40vw, 90vw"
+                      className="object-cover object-top"
+                    />
+                  </div>
                   <CardTitle className="text-lg leading-tight">
                     Your health and well-being come first.
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    We are driven by professionalism, integrity, and a commitment to excellence — because you deserve care you can trust.
+                    Preventive checkups, ongoing follow-ups, and personalized plans keep you healthier for longer.
                   </p>
                 </CardHeader>
               </Card>
               <Card className="border-0 bg-white/90 shadow-lg ring-1 ring-border/70">
-                <CardHeader className="space-y-2">
-                  <CardTitle className="text-lg leading-tight">State-of-the-art medical equipment.</CardTitle>
+                <CardHeader className="space-y-3">
+                  <div className="relative h-64 w-full overflow-hidden rounded-xl">
+                    <Image
+                      src="/assets/lab-test.png"
+                      alt="Modern diagnostics and laboratory services"
+                      fill
+                      sizes="(min-width: 768px) 40vw, 90vw"
+                      className="object-cover object-top"
+                    />
+                  </div>
+                  <CardTitle className="text-lg leading-tight">
+                    Modern diagnostics and laboratory services.
+                  </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Accurate diagnosis, effective treatment, and excellent clinical outcomes across all our services.
+                    Accurate testing and timely results help our specialists make the right decisions quickly.
                   </p>
                 </CardHeader>
               </Card>
               <Card className="border-0 bg-white/90 shadow-lg ring-1 ring-border/70">
-                <CardHeader className="space-y-2">
-                  <CardTitle className="text-lg leading-tight">Renowned specialists across diverse fields.</CardTitle>
+                <CardHeader className="space-y-3">
+                  <div className="relative h-64 w-full overflow-hidden rounded-xl">
+                    <Image
+                      src="/assets/cardiology.png"
+                      alt="Specialists across diverse medical fields"
+                      fill
+                      sizes="(min-width: 768px) 40vw, 90vw"
+                      className="object-cover object-top"
+                    />
+                  </div>
+                  <CardTitle className="text-lg leading-tight">
+                    Renowned specialists across diverse fields.
+                  </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    General medicine, cardiology, paediatrics, obstetrics and gynaecology, dental care, eye care, radiology, laboratory services, and more.
+                    General medicine, cardiology, paediatrics, obstetrics and gynaecology, dental care, eye care, and more.
                   </p>
                 </CardHeader>
               </Card>
@@ -204,13 +248,15 @@ export default function Home() {
 
           <section id="services" className="space-y-6">
             <div className="flex flex-col gap-2">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Our services</p>
-              <h3 className="font-[family-name:var(--font-display)] text-3xl text-foreground sm:text-4xl">
+              <p className="pl-8 text-center text-base font-semibold uppercase tracking-[0.28em] text-primary">
+                Our services
+              </p>
+              <h3 className="pl-8 text-center font-[family-name:var(--font-display)] text-4xl text-foreground sm:text-5xl">
                 Comprehensive care across diverse medical fields.
               </h3>
               
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 pl-8 md:grid-cols-2">
               {serviceLines.slice(0, 4).map((service) => (
                 <Card key={service.title} className="border border-border/70 bg-white/95 p-6 shadow-sm">
                   <div className="flex gap-4">
@@ -231,7 +277,7 @@ export default function Home() {
                   <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
                     <span className={badgeStyles()}>{service.schedule}</span>
                     <Button asChild className="gap-2 font-bold">
-                      <a href={`/our-services?service=${encodeURIComponent(service.title)}#booking`}>
+                      <a href={`/our-services?service=${encodeURIComponent(service.title)}#services-booking`}>
                         Book Appointment
                         <ArrowRight className="h-4 w-4" aria-hidden />
                       </a>
@@ -240,21 +286,23 @@ export default function Home() {
                 </Card>
               ))}
             </div>
-            <p className="pt-2">
+            <p className="pl-8 pt-2">
               <Button asChild className="rounded-full bg-blue-600 px-6 text-white hover:bg-blue-700">
                 <a href="/our-services">MORE SERVICES</a>
               </Button>
             </p>
           </section>
 
-          <section className="space-y-6">
+          <section id="blog" className="space-y-6">
             <div className="flex flex-col gap-2">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Blog</p>
-              <h3 className="font-[family-name:var(--font-display)] text-3xl text-foreground sm:text-4xl">
+              <p className="pl-8 text-center text-base font-semibold uppercase tracking-[0.28em] text-primary">
+                Blog
+              </p>
+              <h3 className="pl-8 text-center font-[family-name:var(--font-display)] text-4xl text-foreground sm:text-5xl">
                 Latest stories from Datima Specialist Clinics.
               </h3>
             </div>
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 pl-8 md:grid-cols-3">
               {blogPosts.slice(0, 3).map((post, index) => (
                 <article key={post.id} className="rounded-2xl border bg-white shadow-sm">
                   <div className="relative h-48 w-full overflow-hidden rounded-t-2xl">
@@ -287,15 +335,17 @@ export default function Home() {
 
           <section id="contact" className="space-y-6 rounded-2xl border bg-white/85 p-6 shadow-lg ring-1 ring-border/70">
             <div className="flex flex-col gap-2">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Contact</p>
-              <h3 className="font-[family-name:var(--font-display)] text-3xl text-foreground sm:text-4xl">
+              <p className="pl-8 text-center text-base font-semibold uppercase tracking-[0.28em] text-primary">
+                Contact
+              </p>
+              <h3 className="pl-8 text-center font-[family-name:var(--font-display)] text-4xl text-foreground sm:text-5xl">
                 Contact Datima Specialist Clinics.
               </h3>
-              <p className="max-w-3xl text-muted-foreground">
+              <p className="max-w-3xl pl-8 text-muted-foreground">
                 If you have any questions, any feedback or you just want to contact us, please visit us at the address below:
               </p>
             </div>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 pl-8 md:grid-cols-3">
               <Card className="border-0 bg-secondary/50 shadow-sm ring-1 ring-border/70">
                 <CardHeader className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -331,8 +381,10 @@ export default function Home() {
 
           <section id="booking" className="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
             <div className="space-y-4">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Book a visit</p>
-              <h3 className="font-[family-name:var(--font-display)] text-3xl text-foreground sm:text-4xl">
+              <p className="pl-8 text-center text-base font-semibold uppercase tracking-[0.28em] text-primary">
+                Book a visit
+              </p>
+              <h3 className="pl-8 text-center font-[family-name:var(--font-display)] text-4xl text-foreground sm:text-5xl">
                 Book an appointment in advance.
               </h3>
               <p className="max-w-2xl text-muted-foreground">
@@ -351,7 +403,7 @@ export default function Home() {
             </Suspense>
           </section>
         </div>
-      </div>
+      </section>
     </main>
   );
 }

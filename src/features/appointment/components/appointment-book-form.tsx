@@ -102,9 +102,14 @@ const AppointmentBookForm = ({ clinics, doctors }: AppointmentBookFormProps) => 
             ))}
           </select>
         </div>
-        <div className="grid gap-2 lg:col-span-2">
+        <div className="grid gap-2">
+          <Label htmlFor="setDay">Appointment date</Label>
+          <Input id="setDay" name="setDay" type="date" required />
+          <FieldError actionState={actionState} name="setDay" />
+        </div>
+        <div className="grid gap-2">
           <Label htmlFor="setTime">Appointment time</Label>
-          <Input id="setTime" name="setTime" type="datetime-local" required />
+          <Input id="setTime" name="setTime" type="time" required />
           <FieldError actionState={actionState} name="setTime" />
         </div>
       </div>

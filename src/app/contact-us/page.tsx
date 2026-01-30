@@ -6,9 +6,11 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 export default function ContactUsPage() {
   return (
     <main className="bg-background">
-      <StaticPageHero title="Contact Us" imagePosition="50% 15%" />
-      <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-12">
-        <div className="space-y-3">
+      <section id="contact-hero">
+        <StaticPageHero title="Contact Us" imagePosition="50% 15%" />
+      </section>
+      <section id="contact-content" className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-12">
+        <section id="contact-intro" className="space-y-3">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Contact</p>
           <h2 className="font-[family-name:var(--font-display)] text-3xl text-foreground sm:text-4xl">
             Contact Datima Specialist Clinics.
@@ -17,8 +19,8 @@ export default function ContactUsPage() {
             If you have any questions, any feedback or you just want to contact us, please reach out using the details
             below or visit the clinic.
           </p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-3">
+        </section>
+        <section id="contact-cards" className="grid gap-4 md:grid-cols-3">
           <Card className="border-0 bg-secondary/50 shadow-sm ring-1 ring-border/70">
             <CardHeader className="space-y-2">
               <div className="flex items-center gap-2">
@@ -46,11 +48,11 @@ export default function ContactUsPage() {
               <p className="text-sm text-foreground">Off Bajulaye Road, Somulu, Lagos.</p>
             </CardHeader>
           </Card>
-        </div>
-        <p className="text-xs text-muted-foreground">
+        </section>
+        <section id="contact-note" className="text-xs text-muted-foreground">
           Use this address, phone numbers and email address for all fliers, info and brochures of Datima Specialist
           Clinics.
-        </p>
+        </section>
       </section>
     </main>
   );

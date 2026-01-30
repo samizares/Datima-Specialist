@@ -17,12 +17,16 @@ export default function BlogLayout({
 }) {
   return (
     <main className="bg-background">
-      <StaticPageHero title="Blog" imagePosition="50% 15%" />
-      <section className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-12 lg:grid-cols-[2fr_1fr]">
-        <div className="space-y-10">{children}</div>
+      <section id="blog-hero">
+        <StaticPageHero title="Blog" imagePosition="50% 15%" />
+      </section>
+      <section id="blog-content" className="mx-auto grid w-full max-w-[1425px] gap-10 px-6 py-12 lg:grid-cols-[2fr_1fr]">
+        <section id="blog-posts" className="space-y-10">
+          {children}
+        </section>
 
-        <aside className="space-y-8">
-          <div className="rounded-2xl border bg-white p-5 shadow-sm">
+        <aside className="space-y-8" aria-label="Blog sidebar">
+          <section id="blog-search" className="rounded-2xl border bg-white p-5 shadow-sm">
             <h2 className="text-lg font-semibold text-foreground">Search</h2>
             <div className="relative mt-4">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -32,9 +36,9 @@ export default function BlogLayout({
                 className="h-11 w-full rounded-md border border-input bg-background px-10 text-sm text-foreground outline-none transition focus:border-primary"
               />
             </div>
-          </div>
+          </section>
 
-          <div className="rounded-2xl border bg-white p-5 shadow-sm">
+          <section id="blog-categories" className="rounded-2xl border bg-white p-5 shadow-sm">
             <h2 className="text-lg font-semibold text-foreground">Categories:</h2>
             <div className="mt-4 space-y-3 text-sm text-muted-foreground">
               {categories.map((category) => (
@@ -46,9 +50,9 @@ export default function BlogLayout({
                 </div>
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="rounded-2xl border bg-white p-5 shadow-sm">
+          <section id="blog-recent" className="rounded-2xl border bg-white p-5 shadow-sm">
             <h2 className="text-lg font-semibold text-foreground">Recent Posts</h2>
             <div className="mt-4 space-y-4">
               {posts.map((post) => (
@@ -65,9 +69,9 @@ export default function BlogLayout({
                 </Link>
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="rounded-2xl border bg-white p-5 shadow-sm">
+          <section id="blog-tags" className="rounded-2xl border bg-white p-5 shadow-sm">
             <h2 className="text-lg font-semibold text-foreground">Popular Tags</h2>
             <div className="mt-4 flex flex-wrap gap-2">
               {popularTags.map((tag) => (
@@ -79,7 +83,7 @@ export default function BlogLayout({
                 </span>
               ))}
             </div>
-          </div>
+          </section>
         </aside>
       </section>
     </main>

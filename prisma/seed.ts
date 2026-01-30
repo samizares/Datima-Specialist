@@ -7,6 +7,7 @@ import {
   popularTags,
   posts as blogPosts,
 } from "../src/features/blog/content";
+import { hashPassword } from "../src/features/password/utils/hash-and-verify";
 
 const _dbUrl = process.env.DATABASE_URL;
 if (!_dbUrl || _dbUrl.includes("Concrete45Stron")) {
@@ -26,9 +27,58 @@ const now = new Date();
 const addDays = (days: number) => new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
 
 async function main() {
+  const adminPasswordHash = await hashPassword("adminadmin");
+  const adminUser = await prisma.user.upsert({
+    where: { id: "user-admin" },
+    update: {
+      username: "admin",
+      email: "admin@datimaspecialistclinics.com",
+      emailVerified: true,
+      isAdmin: true,
+      isSuperAdmin: true,
+      passwordHash: adminPasswordHash,
+    },
+    create: {
+      id: "user-admin",
+      username: "admin",
+      email: "admin@datimaspecialistclinics.com",
+      emailVerified: true,
+      isAdmin: true,
+      isSuperAdmin: true,
+      createdAt: now,
+      updatedAt: now,
+      passwordHash: adminPasswordHash,
+    },
+  });
+
+  const managerPasswordHash = await hashPassword("manager");
+  await prisma.user.upsert({
+    where: { id: "user-manager" },
+    update: {
+      username: "manager",
+      email: "manager@datimaspecialistclinics.com",
+      emailVerified: true,
+      isAdmin: true,
+      isSuperAdmin: false,
+      passwordHash: managerPasswordHash,
+    },
+    create: {
+      id: "user-manager",
+      username: "manager",
+      email: "manager@datimaspecialistclinics.com",
+      emailVerified: true,
+      isAdmin: true,
+      isSuperAdmin: false,
+      createdAt: now,
+      updatedAt: now,
+      passwordHash: managerPasswordHash,
+    },
+  });
+
   const users = await Promise.all(
-    Array.from({ length: 4 }, (_, i) => {
+    Array.from({ length: 4 }, async (_, i) => {
       const id = `user-${i + 1}`;
+      const passwordHash = await hashPassword(`user${i + 1}`);
       return prisma.user.upsert({
         where: { id },
         update: {},
@@ -37,7 +87,11 @@ async function main() {
           username: `user${i + 1}`,
           email: `user${i + 1}@example.com`,
           emailVerified: i % 2 === 0,
-          passwordHash: `hash-${i + 1}`,
+          isAdmin: false,
+          isSuperAdmin: false,
+          createdAt: now,
+          updatedAt: now,
+          passwordHash,
         },
       });
     })
@@ -57,6 +111,8 @@ async function main() {
           address: `Street ${i + 1}`,
           status: i % 2 === 0 ? "PROSPECT" : "PATIENT",
           attachmentId: `attachment-${i + 1}`,
+          createdAt: now,
+          updatedAt: now,
         },
       });
     })
@@ -73,6 +129,8 @@ async function main() {
           name: `Clinic ${i + 1}`,
           desc: `Clinic description ${i + 1}`,
           attachmentId: `attachment-${i + 1}`,
+          createdAt: now,
+          updatedAt: now,
         },
       });
     })
@@ -90,6 +148,8 @@ async function main() {
           lastName: `Lastname${i + 1}`,
           email: `doctor${i + 1}@example.com`,
           clinic: { connect: { id: clinics[i].id } },
+          createdAt: now,
+          updatedAt: now,
         },
       });
     })
@@ -103,11 +163,14 @@ async function main() {
         update: {},
         create: {
           id,
-          setTime: addDays(i + 1),
+          setDay: addDays(i + 1),
+          setTime: "09:00",
           status: "UNFILL",
           client: { connect: { id: clients[i].id } },
           clinic: { connect: { id: clinics[i].id } },
           doctor: { connect: { id: doctors[i].id } },
+          createdAt: now,
+          updatedAt: now,
         },
       });
     })
@@ -123,6 +186,8 @@ async function main() {
           id,
           name: `Attachment ${i + 1}`,
           attachmentTpe: i === 1 ? "ADMIN" : i === 3 ? "DOCTOR" : "CLIENT",
+          createdAt: now,
+          updatedAt: now,
         },
       });
     })
@@ -152,13 +217,14 @@ async function main() {
         new Set([...(post.tags || []), categoryTag, popularTag].filter(Boolean))
       ).join(", ");
 
+      const author = users[index % users.length] ?? adminUser;
       return prisma.blog.upsert({
         where: { id: post.id },
         update: {
           title: post.title,
           tags,
           content: post.content,
-          author: { connect: { id: users[index % users.length].id } },
+          author: { connect: { id: author.id } },
           attachment: { connect: { id: blogAttachments[index].id } },
         },
         create: {
@@ -166,8 +232,10 @@ async function main() {
           title: post.title,
           tags,
           content: post.content,
-          author: { connect: { id: users[index % users.length].id } },
+          author: { connect: { id: author.id } },
           attachment: { connect: { id: blogAttachments[index].id } },
+          createdAt: now,
+          updatedAt: now,
         },
       });
     })
@@ -233,6 +301,8 @@ async function main() {
           closeTime: "05:00pm",
           clinic: { connect: { id: clinics[i].id } },
           doctor: { connect: { id: doctors[i].id } },
+          createdAt: now,
+          updatedAt: now,
         },
       });
     })
@@ -251,6 +321,8 @@ async function main() {
           endTime: "04:00pm",
           doctor: { connect: { id: doctors[i].id } },
           clinic: { connect: { id: clinics[i].id } },
+          createdAt: now,
+          updatedAt: now,
         },
       });
     })
@@ -266,6 +338,8 @@ async function main() {
           id,
           client: { connect: { id: clients[i].id } },
           content: `Testimonial content ${i + 1}`,
+          createdAt: now,
+          updatedAt: now,
         },
       });
     })
@@ -281,6 +355,7 @@ async function main() {
           id,
           content: `Message content ${i + 1}`,
           client: { connect: { id: clients[i].id } },
+          createdAt: now,
         },
       });
     })
@@ -298,6 +373,8 @@ async function main() {
           catchphrase: `Catchphrase ${i + 1}`,
           startDate: addDays(i),
           endDate: addDays(i + 30),
+          createdAt: now,
+          updatedAt: now,
         },
       });
     })

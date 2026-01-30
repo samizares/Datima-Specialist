@@ -4,9 +4,11 @@ import { StaticPageHero } from "@/components/static-page-hero";
 export default function AboutUsPage() {
   return (
     <main className="bg-background">
-      <StaticPageHero title="About Us" imagePosition="50% 15%" />
-      <section className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-12">
-        <div className="space-y-3">
+      <section id="about-hero">
+        <StaticPageHero title="About Us" imagePosition="50% 15%" />
+      </section>
+      <section id="about-content" className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-12">
+        <section id="about-intro" className="space-y-3">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Datima Specialist Clinics</p>
           <h2 className="font-[family-name:var(--font-display)] text-3xl text-foreground sm:text-4xl">
             Professional, compassionate care you can trust.
@@ -15,8 +17,8 @@ export default function AboutUsPage() {
             Datima Specialist Clinics is a patient-centered healthcare facility committed to delivering top-notch medical
             services in a warm, professional, and compassionate environment.
           </p>
-        </div>
-        <div className="grid gap-6 md:grid-cols-2">
+        </section>
+        <section id="about-highlights" className="grid gap-6 md:grid-cols-2">
           <Card className="border-0 bg-white/90 shadow-lg ring-1 ring-border/70">
             <CardHeader className="space-y-2">
               <CardTitle className="text-lg leading-tight">
@@ -52,7 +54,7 @@ export default function AboutUsPage() {
               </p>
             </CardHeader>
           </Card>
-        </div>
+        </section>
       </section>
     </main>
   );
