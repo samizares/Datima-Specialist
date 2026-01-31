@@ -88,7 +88,9 @@ export async function updateAppointment(
         status: data.status,
         client: { connect: { id: data.clientId } },
         clinic: { connect: { id: data.clinicId } },
-        doctorId: data.doctorId ?? null,
+        ...(data.doctorId
+          ? { doctor: { connect: { id: data.doctorId } } }
+          : { doctor: { disconnect: true } }),
       },
       include: {
         client: { select: { firstName: true, lastName: true } },

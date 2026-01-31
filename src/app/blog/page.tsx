@@ -22,10 +22,10 @@ export default function BlogPage() {
           <div className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
             {post.tags.join(" • ")} • {formatDisplayDate(post.createdAt, post.updatedAt)}
           </div>
-          <h1 className="font-[family-name:var(--font-display)] text-3xl font-black text-foreground sm:text-4xl">
+          <h1 className="font-[family-name:var(--font-display)] text-3xl font-black text-foreground sm:text-4xl dark:text-black">
             {post.title}
           </h1>
-          <p className="text-muted-foreground">{formatSummary(post.content)}</p>
+          <p className="text-muted-foreground dark:text-black">{formatSummary(post.content)}</p>
           <Button asChild className="bg-blue-600 text-white hover:bg-blue-700">
             <Link href={`/blog/${post.id}`}>Read more</Link>
           </Button>

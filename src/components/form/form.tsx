@@ -1,6 +1,7 @@
 import { toast, ToastT } from "sonner";
 import { useActionFeedback } from "./hooks/use-action-feedback";
 import { ActionState } from "./utils/to-action-state";
+import { cn } from "@/lib/utils";
 
 type FormProps = {
   action: (payload: FormData) => void;
@@ -9,6 +10,7 @@ type FormProps = {
   onSuccess?: (actionState: ActionState) => void;
   onError?: (actionState: ActionState) => void;
   toastOptions?: Omit<ToastT, "id"> | undefined;
+  className?: string;
 };
 
 const Form = ({
@@ -18,6 +20,7 @@ const Form = ({
   onSuccess,
   onError,
   toastOptions,
+  className,
 }: FormProps) => {
   useActionFeedback(actionState, {
     onSuccess: ({ actionState }) => {
@@ -37,7 +40,7 @@ const Form = ({
   });
 
   return (
-    <form action={action} className="flex flex-col gap-y-2">
+    <form action={action} className={cn("flex flex-col gap-y-2", className)}>
       {children}
     </form>
   );

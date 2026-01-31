@@ -15,6 +15,7 @@ model User {
   emailVerified     		Boolean   @default(false)
   isAdmin           Boolean   @default(false)
   isSuperAdmin      Boolean   @default(false)
+  sidebarOrder      String?
   passwordHash 			String
   sessions     			Session[]
   passwordResetTokens     	PasswordResetToken[]

@@ -71,21 +71,22 @@ export function HomeGallery() {
               aria-hidden={!isActive}
               role="group"
               style={{
-                backgroundImage: `linear-gradient(110deg, rgba(5, 15, 32, 0.88) 0%, rgba(5, 15, 32, 0.68) 45%, rgba(5, 15, 32, 0.38) 68%, rgba(5, 15, 32, 0.18) 100%), url(${slide.image})`,
+                backgroundImage: `linear-gradient(110deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 55%, rgba(255, 255, 255, 0) 100%), url(${slide.image})`,
                 backgroundSize: "cover",
                 backgroundPosition: slide.position ?? "68% center",
+                filter: "saturate(1.2) contrast(1.08)",
               }}
             >
-              <div className="flex h-full items-center px-6 py-8 sm:px-10 lg:px-16">
-                <div className="max-w-2xl space-y-6 text-white">
-                  <h2 className="font-[family-name:var(--font-display)] text-3xl leading-tight sm:text-4xl lg:text-5xl">
+              <div className="flex h-full items-end px-6 pb-8 pt-8 sm:px-10 lg:px-16">
+                <div className="flex max-w-md flex-col items-center space-y-4 rounded-3xl bg-white/85 p-6 text-slate-900 shadow-[0_20px_50px_-40px_rgba(15,23,42,0.45)] backdrop-blur-sm sm:p-8 lg:p-10">
+                  <h2 className="font-[family-name:var(--font-display)] text-lg leading-tight text-slate-900 sm:text-xl lg:text-2xl">
                     {slide.title}
                   </h2>
-                  <p className="text-lg text-blue-100">At Datima, your health and well-being come first.</p>
+                  <p className="text-center text-sm text-slate-600 sm:text-base">At Datima, your health and well-being come first.</p>
                   <Button
                     asChild
                     size="lg"
-                    className="bg-red-600 text-base font-semibold text-white shadow-lg transition hover:bg-red-700"
+                    className="self-center bg-blue-700 text-base font-semibold text-white shadow-lg transition hover:bg-blue-600"
                   >
                     <a href="#booking">{slide.cta}</a>
                   </Button>

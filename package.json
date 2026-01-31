@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@react-email/preview-server": "^5.2.3",
     "@types/big.js": "^6.2.2",
     "@types/node": "^20",
     "@types/react": "^19",

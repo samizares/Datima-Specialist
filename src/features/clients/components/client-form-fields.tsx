@@ -1,7 +1,10 @@
 "use client";
 
+import type { Dispatch, SetStateAction } from "react";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ClientStatus } from "@prisma/client";
 import {
   Select,
   SelectContent,
@@ -10,19 +13,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type ClientFormValues = {
+export type ClientFormValues = {
   firstName: string;
   lastName: string;
   email: string;
   telephone: string;
   address: string;
-  status: string;
+  status: ClientStatus;
   attachmentId: string;
 };
 
 type ClientFormFieldsProps = {
   values: ClientFormValues;
-  onChange: (values: ClientFormValues) => void;
+  onChange: Dispatch<SetStateAction<ClientFormValues>>;
 };
 
 export function ClientFormFields({ values, onChange }: ClientFormFieldsProps) {
@@ -85,7 +88,9 @@ export function ClientFormFields({ values, onChange }: ClientFormFieldsProps) {
         <Label>Status</Label>
         <Select
           value={values.status}
-          onValueChange={(value) => onChange({ ...values, status: value })}
+          onValueChange={(value) =>
+            onChange({ ...values, status: value as ClientStatus })
+          }
         >
           <SelectTrigger>
             <SelectValue placeholder="Select status" />

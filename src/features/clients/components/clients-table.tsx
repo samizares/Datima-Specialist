@@ -21,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ClientFormFields } from "./client-form-fields";
 import {
   Table,
   TableBody,
@@ -35,20 +34,11 @@ import {
   deleteClient,
   updateClient,
 } from "../actions/clients";
+import { ClientFormFields, type ClientFormValues } from "./client-form-fields";
 import { getClients } from "../queries/get-clients";
 import Link from "next/link";
 
 type ClientRecord = Awaited<ReturnType<typeof getClients>>[number];
-
-type ClientFormValues = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  telephone: string;
-  address: string;
-  status: string;
-  attachmentId: string;
-};
 
 const defaultFormValues: ClientFormValues = {
   firstName: "",

@@ -1,8 +1,8 @@
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { NextRequest } from "next/server";
-import * as attachmentData from "@/features/attachments/data";
-import { generateS3Key } from "@/features/attachments/utils/generate-s3-key";
+import * as attachmentData from "@/features/attachment/data";
+import { generateS3Key } from "@/features/attachment/utils/generate-s3-key";
 import { getAuthOrRedirect } from "@/features/auth/queries/get-auth-or-redirect";
 import { s3 } from "@/lib/aws";
 

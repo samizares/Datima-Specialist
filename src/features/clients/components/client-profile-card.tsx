@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ClientFormFields } from "./client-form-fields";
+import { ClientFormFields, type ClientFormValues } from "./client-form-fields";
 import { updateClient } from "../actions/clients";
 import type { getClient } from "../queries/get-client";
 
@@ -27,16 +27,6 @@ const STATUS_LABELS: Record<string, string> = {
 type ClientRecord = Awaited<ReturnType<typeof getClient>>;
 
 type Client = NonNullable<ClientRecord>;
-
-type ClientFormValues = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  telephone: string;
-  address: string;
-  status: string;
-  attachmentId: string;
-};
 
 const defaultFormValues: ClientFormValues = {
   firstName: "",
@@ -210,7 +200,7 @@ export function ClientProfileCard({
             </DialogTitle>
           </DialogHeader>
           <form className="mt-4 grid gap-4" onSubmit={handleSubmit}>
-            <ClientFormFields values={formValues} onChange={setFormValues} />
+            <ClientFormFields values={formValues} onChange={(values) => setFormValues(values)} />
             <DialogFooter className="gap-2">
               <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
                 Cancel

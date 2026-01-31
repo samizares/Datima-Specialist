@@ -30,10 +30,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <div className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
         {post.tags.join(" • ")} • {formatDisplayDate(post.createdAt, post.updatedAt)}
       </div>
-      <h1 className="font-[family-name:var(--font-display)] text-3xl font-black text-foreground sm:text-4xl">
+      <h1 className="font-[family-name:var(--font-display)] text-3xl font-black text-foreground text-black sm:text-4xl">
         {post.title}
       </h1>
-      <p className="text-muted-foreground">{post.content}</p>
+      <p className="text-muted-foreground text-black">{post.content}</p>
     </article>
   );
 }

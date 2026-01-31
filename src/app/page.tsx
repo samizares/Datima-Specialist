@@ -4,8 +4,6 @@ import { Suspense } from "react";
 import {
   ArrowRight,
   CheckCircle2,
-  MapPin,
-  PhoneCall,
   Sparkles,
   Stethoscope,
 } from "lucide-react";
@@ -15,85 +13,25 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HomeGallery } from "@/components/home-gallery";
+import { ContactSection } from "@/components/contact-section";
+import { aboutHighlights } from "@/features/about/content";
+import { serviceLines } from "@/features/services/content";
 import { formatDisplayDate, posts as blogPosts } from "@/features/blog/content";
+import { prisma } from "@/lib/prisma";
 
-const serviceLines = [
-  {
-    title: "General Medical/Dental Clinics",
-    description:
-      "Our General and Dental clinic is focused on diagnosis and treatment of common illness, oral health, including the teeth, gums, and jaw. We treats conditions such as tooth decay, gum disease (gingivitis and periodontitis), tooth infections, oral pain, misaligned teeth, impacted wisdom teeth, oral lesions, jaw disorders, and cosmetic dental concerns.",
-    schedule: "Mon: 8am - Saturday 9pm",
-    image: "/assets/dental.png",
-  },
-  {
-    title: "Cardiology",
-    description: "Our Cardiology clinic diagnose, treat, and prevent diseases of the cardiovascular system. We manage conditions such as coronary artery disease, heart attacks, heart failure, arrhythmias (irregular heartbeats), hypertension (high blood pressure), congenital and valvular heart disease. We also address risk factors like high cholesterol, diabetes, obesity, and other heart disease.",
-    schedule: "Wednesday: 12 noon - 5pm",
-    image: "/assets/cardiology.png",
-  },
-  {
-    title: "ENT (Ear, Nose and Throat)",
-    description: "Our ENT clinic treats conditions affecting hearing, balance, breathing, speech, and swallowing. We treat common illnesses like ear infections, hearing loss, sinusitis, allergies, tonsillitis,  and throat or laryngeal disorders.",
-    schedule: "Saturday: 10am - 2pm",
-    image: "/assets/ENT.png",
-  },
-  {
-    title: "Obstetrics & Gynaecology",
-    description: "Our OB-GYN clinic is focused on women’s reproductive health, pregnancy, and childbirth. We treats conditions such as menstrual disorders, infertility, pregnancy complications, fibroids, ovarian cysts, endometriosis, pelvic infections, menopause-related issues, and many others.",
-    schedule: "Sunday: 10am - 2pm",
-    image: "/assets/ob-gyn.png",
-  },
-  {
-    title: "Endocrinology",
-    description: "Diabetes, thyroid diseases, and related conditions.",
-    schedule: "Sunday: 2pm - 6pm",
-    image: "/assets/lab-test.png",
-  },
-  {
-    title: "Paediatrics (Children Clinic)",
-    description: "Children clinic services.",
-    schedule: "Friday: 10am - 2pm",
-    image: "/assets/paedatrics-care.png",
-  },
-  {
-    title: "Oral and Maxillofacial",
-    description: "Oral and maxillofacial care.",
-    schedule: "Sunday: 2pm - 6pm",
-    image: "/assets/dental-xray.png",
-  },
-  {
-    title: "Restorative Dental",
-    description: "Restorative dental care.",
-    schedule: "Tuesday: 2pm - 6pm",
-    image: "/assets/dental-xray-2.png",
-  },
-  {
-    title: "Orthodontics",
-    description: "Orthodontic treatments and alignment care.",
-    schedule: "Tuesday: 10am - 2pm",
-    image: "/assets/dental-xray.png",
-  },
-  {
-    title: "Optometry/Eye Tests/Glasses",
-    description:
-      "Comprehensive eye examinations. Ophthalmology services. Cataract evaluation and surgery. Glaucoma diagnosis and treatment. Vision correction and eye disease management.",
-    schedule: "Monday-Saturday: 8am - 5pm",
-    image: "/assets/optometry-care.png",
-  },
-  {
-    title: "Laboratory Services",
-    description: "Routine blood and urine tests. Reliable and timely diagnostic testing.",
-    schedule: "Monday - Saturday: 8am - 2pm. Sunday: 2pm - 6pm",
-    image: "/assets/lab-test.png",
-  },
-];
+// serviceLines moved to shared content file.
 
 const badgeStyles = () =>
   clsx(
-    "rounded-full px-3 py-1 text-xs font-semibold border border-border/70 bg-white text-foreground"
+    "rounded-full px-3 py-1 text-xs font-semibold border border-border/70 bg-[#e5f6fb] text-foreground"
   );
 
-export default function Home() {
+export default async function Home() {
+  const clinics = await prisma.clinic.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+
   return (
     <main className="bg-background">
       <section id="home-gallery">
@@ -101,10 +39,10 @@ export default function Home() {
       </section>
 
       <section id="intro" className="mx-auto w-full max-w-[1425px] px-6 py-12">
-        <div className="grid items-stretch gap-20 rounded-[28px] bg-white p-6 text-foreground shadow-xl lg:grid-cols-[1fr_1.1fr] lg:p-10">
+        <div className="grid items-stretch gap-20 rounded-[28px] bg-white p-6 text-foreground shadow-xl dark:text-black lg:grid-cols-[1fr_1.1fr] lg:p-10">
           <div className="relative min-h-[320px] overflow-hidden rounded-2xl">
             <Image
-              src="/assets/test-smiling.png"
+              src="/assets/ge-healthcare-lady.png"
               alt="Patient smiling at Datima Specialist Clinics"
               fill
               sizes="(min-width: 1024px) 45vw, 100vw"
@@ -114,16 +52,16 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col justify-center gap-5">
-            <h2 className="font-[family-name:var(--font-display)] text-3xl font-black leading-tight sm:text-4xl">
+            <h2 className="font-[family-name:var(--font-display)] text-3xl font-black leading-tight sm:text-4xl dark:text-black">
               Welcome to Datima Specialist Clinics
             </h2>
-            <p className="text-base text-muted-foreground">
+            <p className="text-base text-muted-foreground dark:text-black">
               Datima Specialist Clinics is a patient-centered healthcare facility committed to delivering top-notch
               medical services in a warm, professional, and compassionate environment.
             </p>
-            <p className="text-lg font-semibold text-foreground">Why Choose Datima?</p>
+            <p className="text-lg font-semibold text-foreground dark:text-black">Why Choose Datima?</p>
 
-            <ul className="space-y-3 text-sm text-foreground sm:text-base">
+            <ul className="space-y-3 text-sm text-foreground sm:text-base dark:text-black">
               {[
                 "Datima Specialist Clinics is home to renowned specialists in diverse medical fields.",
                 "Datima Specilists clinics is equipped with state-of-the-art medical equipment.",
@@ -157,148 +95,102 @@ export default function Home() {
         </div>
 
         <div className="mx-auto flex max-w-[1425px] flex-col gap-24 px-6 pb-16 pt-16 lg:pt-20 lg:pb-20">
-          <section id="about" className="space-y-6">
+          <section id="about" className="space-y-6 dark:text-black">
             <div className="flex flex-col gap-2">
-              <p className="pl-8 text-center text-base font-semibold uppercase tracking-[0.28em] text-primary">
+              <p className="pl-8 text-center text-base font-semibold uppercase tracking-[0.28em] text-primary dark:text-white">
                 About us
               </p>
-              <h2 className="pl-8 text-center font-[family-name:var(--font-display)] text-4xl text-foreground sm:text-5xl">
+              <h2 className="pl-8 text-center font-[family-name:var(--font-display)] text-4xl text-foreground sm:text-5xl dark:text-white">
                 Professional, compassionate care you can trust.
               </h2>
             </div>
-            <div className="grid gap-6 pl-8 md:grid-cols-2">
-              <Card className="border-0 bg-white/90 shadow-lg ring-1 ring-border/70">
-                <CardHeader className="space-y-3">
-                  <div className="relative h-64 w-full overflow-hidden rounded-xl">
-                    <Image
-                      src="/assets/test-smiling.png"
-                      alt="Patient-centered care at Datima Specialist Clinics"
-                      fill
-                      sizes="(min-width: 768px) 40vw, 90vw"
-                      className="object-cover object-top"
-                    />
-                  </div>
-                  <CardTitle className="text-lg leading-tight">
-                    Datima Specialist Clinics is a patient-centered healthcare facility.
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    We deliver attentive, coordinated care in a warm, professional environment where every visit feels supported.
-                  </p>
-                </CardHeader>
-              </Card>
-              <Card className="border-0 bg-white/90 shadow-lg ring-1 ring-border/70">
-                <CardHeader className="space-y-3">
-                  <div className="relative h-64 w-full overflow-hidden rounded-xl">
-                    <Image
-                      src="/assets/optometry-care.png"
-                      alt="Comprehensive wellness and preventive care"
-                      fill
-                      sizes="(min-width: 768px) 40vw, 90vw"
-                      className="object-cover object-top"
-                    />
-                  </div>
-                  <CardTitle className="text-lg leading-tight">
-                    Your health and well-being come first.
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Preventive checkups, ongoing follow-ups, and personalized plans keep you healthier for longer.
-                  </p>
-                </CardHeader>
-              </Card>
-              <Card className="border-0 bg-white/90 shadow-lg ring-1 ring-border/70">
-                <CardHeader className="space-y-3">
-                  <div className="relative h-64 w-full overflow-hidden rounded-xl">
-                    <Image
-                      src="/assets/lab-test.png"
-                      alt="Modern diagnostics and laboratory services"
-                      fill
-                      sizes="(min-width: 768px) 40vw, 90vw"
-                      className="object-cover object-top"
-                    />
-                  </div>
-                  <CardTitle className="text-lg leading-tight">
-                    Modern diagnostics and laboratory services.
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Accurate testing and timely results help our specialists make the right decisions quickly.
-                  </p>
-                </CardHeader>
-              </Card>
-              <Card className="border-0 bg-white/90 shadow-lg ring-1 ring-border/70">
-                <CardHeader className="space-y-3">
-                  <div className="relative h-64 w-full overflow-hidden rounded-xl">
-                    <Image
-                      src="/assets/cardiology.png"
-                      alt="Specialists across diverse medical fields"
-                      fill
-                      sizes="(min-width: 768px) 40vw, 90vw"
-                      className="object-cover object-top"
-                    />
-                  </div>
-                  <CardTitle className="text-lg leading-tight">
-                    Renowned specialists across diverse fields.
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    General medicine, cardiology, paediatrics, obstetrics and gynaecology, dental care, eye care, and more.
-                  </p>
-                </CardHeader>
-              </Card>
+            <div className="rounded-3xl bg-white/85 p-6 shadow-xl ring-1 ring-border/70">
+              <div className="grid gap-6 md:grid-cols-2">
+                {aboutHighlights.map((highlight) => (
+                  <Card key={highlight.title} className="border-0 bg-white/90 shadow-lg ring-1 ring-border/70">
+                    <CardHeader className="space-y-3">
+                      <div className="relative h-64 w-full overflow-hidden rounded-xl">
+                        <Image
+                          src={highlight.image}
+                          alt={highlight.alt}
+                          fill
+                          sizes="(min-width: 768px) 40vw, 90vw"
+                          className="object-cover object-top"
+                        />
+                      </div>
+                      <CardTitle className="text-lg leading-tight dark:text-black">
+                        {highlight.title}
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground dark:text-black">
+                        {highlight.description}
+                      </p>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+              <div className="mt-8 flex justify-center">
+                <Button asChild className="rounded-full bg-blue-600 px-6 text-white hover:bg-blue-700">
+                  <a href="/about-us">Read More</a>
+                </Button>
+              </div>
             </div>
           </section>
 
-          <section id="services" className="space-y-6">
+          <section id="services" className="space-y-6 dark:text-black">
             <div className="flex flex-col gap-2">
-              <p className="pl-8 text-center text-base font-semibold uppercase tracking-[0.28em] text-primary">
+              <p className="pl-8 text-center text-base font-semibold uppercase tracking-[0.28em] text-primary dark:text-white">
                 Our services
               </p>
-              <h3 className="pl-8 text-center font-[family-name:var(--font-display)] text-4xl text-foreground sm:text-5xl">
+              <h3 className="pl-8 text-center font-[family-name:var(--font-display)] text-3xl text-foreground sm:text-4xl dark:text-white">
                 Comprehensive care across diverse medical fields.
               </h3>
               
             </div>
-            <div className="grid gap-4 pl-8 md:grid-cols-2">
-              {serviceLines.slice(0, 4).map((service) => (
-                <Card key={service.title} className="border border-border/70 bg-white/95 p-6 shadow-sm">
-                  <div className="flex gap-4">
-                    <div className="relative h-20 w-[85px] shrink-0 overflow-hidden rounded-2xl bg-secondary/60">
-                      <Image
-                        src={service.image}
-                        alt={service.title}
-                        fill
-                        sizes="85px"
-                        className="object-cover"
-                      />
+            <div className="rounded-3xl bg-white/85 p-6 shadow-xl ring-1 ring-border/70">
+              <div className="grid gap-6 md:grid-cols-2">
+                {serviceLines.slice(0, 4).map((service) => (
+                  <Card key={service.title} className="border border-border/70 bg-white/95 p-6 shadow-sm">
+                    <div className="flex gap-4">
+                      <div className="relative h-32 w-[150px] shrink-0 overflow-hidden rounded-2xl bg-secondary/60">
+                        <Image
+                          src={service.image}
+                          alt={service.title}
+                          fill
+                          sizes="85px"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <CardTitle className="text-xl font-bold dark:text-black">{service.title}</CardTitle>
+                        <p className="text-sm text-muted-foreground dark:text-black">{service.description}</p>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <CardTitle className="text-xl font-bold">{service.title}</CardTitle>
-                      <p className="text-sm text-muted-foreground">{service.description}</p>
+                    <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                      <span className={clsx(badgeStyles(), "text-black")}>{service.schedule}</span>
+                      <Button asChild className="gap-2 font-bold bg-[#283a6a] text-white hover:bg-[#1f2f59]">
+                        <a href={`/our-services?service=${encodeURIComponent(service.title)}#services-booking`}>
+                          Book Appointment
+                          <ArrowRight className="h-4 w-4" aria-hidden />
+                        </a>
+                      </Button>
                     </div>
-                  </div>
-                  <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-                    <span className={badgeStyles()}>{service.schedule}</span>
-                    <Button asChild className="gap-2 font-bold">
-                      <a href={`/our-services?service=${encodeURIComponent(service.title)}#services-booking`}>
-                        Book Appointment
-                        <ArrowRight className="h-4 w-4" aria-hidden />
-                      </a>
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                ))}
+              </div>
+              <div className="mt-8 flex justify-center">
+                <Button asChild className="rounded-full bg-blue-600 px-6 text-white hover:bg-blue-700">
+                  <a href="/our-services">Read More</a>
+                </Button>
+              </div>
             </div>
-            <p className="pl-8 pt-2">
-              <Button asChild className="rounded-full bg-blue-600 px-6 text-white hover:bg-blue-700">
-                <a href="/our-services">MORE SERVICES</a>
-              </Button>
-            </p>
           </section>
 
-          <section id="blog" className="space-y-6">
+          <section id="blog" className="space-y-6 dark:text-black">
             <div className="flex flex-col gap-2">
-              <p className="pl-8 text-center text-base font-semibold uppercase tracking-[0.28em] text-primary">
+              <p className="pl-8 text-center text-base font-semibold uppercase tracking-[0.28em] text-primary dark:text-white">
                 Blog
               </p>
-              <h3 className="pl-8 text-center font-[family-name:var(--font-display)] text-4xl text-foreground sm:text-5xl">
+              <h3 className="pl-8 text-center font-[family-name:var(--font-display)] text-3xl text-foreground sm:text-4xl dark:text-white">
                 Latest stories from Datima Specialist Clinics.
               </h3>
             </div>
@@ -316,13 +208,13 @@ export default function Home() {
                     />
                   </div>
                   <div className="space-y-4 p-5">
-                    <div className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                    <div className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground dark:text-black">
                       {post.tags[0]} • {formatDisplayDate(post.createdAt, post.updatedAt)}
                     </div>
-                    <h4 className="text-xl font-bold text-foreground">{post.title}</h4>
+                    <h4 className="text-xl font-bold text-foreground dark:text-black">{post.title}</h4>
                     <a
                       href={`/blog/${post.id}`}
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-primary"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-primary dark:text-black"
                     >
                       Read More
                       <ArrowRight className="h-4 w-4" aria-hidden />
@@ -333,63 +225,17 @@ export default function Home() {
             </div>
           </section>
 
-          <section id="contact" className="space-y-6 rounded-2xl border bg-white/85 p-6 shadow-lg ring-1 ring-border/70">
-            <div className="flex flex-col gap-2">
-              <p className="pl-8 text-center text-base font-semibold uppercase tracking-[0.28em] text-primary">
-                Contact
-              </p>
-              <h3 className="pl-8 text-center font-[family-name:var(--font-display)] text-4xl text-foreground sm:text-5xl">
-                Contact Datima Specialist Clinics.
-              </h3>
-              <p className="max-w-3xl pl-8 text-muted-foreground">
-                If you have any questions, any feedback or you just want to contact us, please visit us at the address below:
-              </p>
-            </div>
-            <div className="grid gap-4 pl-8 md:grid-cols-3">
-              <Card className="border-0 bg-secondary/50 shadow-sm ring-1 ring-border/70">
-                <CardHeader className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <PhoneCall className="h-4 w-4 text-primary" aria-hidden />
-                    <CardTitle className="text-base">Call</CardTitle>
-                  </div>
-                  <p className="text-sm text-foreground">+234 9157360689</p>
-                  <p className="text-sm text-foreground">+234 9093933524</p>
-                </CardHeader>
-              </Card>
-              <Card className="border-0 bg-secondary/50 shadow-sm ring-1 ring-border/70">
-                <CardHeader className="space-y-2">
-                  <CardTitle className="text-base">Email</CardTitle>
-                  <p className="text-sm text-foreground">care@datimaspecialistclinics.com</p>
-                  <p className="text-sm text-foreground">admin@datimaspecialistclinics.com</p>
-                </CardHeader>
-              </Card>
-              <Card className="border-0 bg-secondary/50 shadow-sm ring-1 ring-border/70">
-                <CardHeader className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-primary" aria-hidden />
-                    <CardTitle className="text-base">Visit</CardTitle>
-                  </div>
-                  <p className="text-sm text-foreground">1, Fola Agoro Street</p>
-                  <p className="text-sm text-foreground">Off Bajulaye Road, Somulu, Lagos.</p>
-                </CardHeader>
-              </Card>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Use this address, phone numbers and email address for all fliers, info and bronchures of Datima Specialist Clinics.
-            </p>
-          </section>
+          <ContactSection />
 
-          <section id="booking" className="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
-            <div className="space-y-4">
-              <p className="pl-8 text-center text-base font-semibold uppercase tracking-[0.28em] text-primary">
-                Book a visit
-              </p>
-              <h3 className="pl-8 text-center font-[family-name:var(--font-display)] text-4xl text-foreground sm:text-5xl">
-                Book an appointment in advance.
-              </h3>
-              <p className="max-w-2xl text-muted-foreground">
-                To help us serve you better and reduce waiting time, we kindly encourage all patients to book an appointment in advance to see one of our specialists.
-              </p>
+          <section id="booking" className="grid gap-8 lg:grid-cols-[1fr_0.9fr] dark:text-black">
+            <div className="relative min-h-[320px] overflow-hidden rounded-3xl bg-white/70 shadow-lg">
+              <Image
+                src="/assets/slit-lamp-biomicroscope.png"
+                alt="Slit lamp biomicroscope at Datima Specialist Clinics"
+                fill
+                sizes="(min-width: 1024px) 45vw, 100vw"
+                className="object-cover"
+              />
             </div>
 
             <Suspense
@@ -399,7 +245,7 @@ export default function Home() {
                 </div>
               }
             >
-              <AppointmentForm />
+              <AppointmentForm clinics={clinics} />
             </Suspense>
           </section>
         </div>
