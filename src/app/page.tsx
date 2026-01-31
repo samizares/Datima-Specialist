@@ -23,7 +23,7 @@ import { prisma } from "@/lib/prisma";
 
 const badgeStyles = () =>
   clsx(
-    "rounded-full px-3 py-1 text-xs font-semibold border border-border/70 bg-[#e5f6fb] text-foreground"
+    "rounded-full px-3 py-1 text-xs font-semibold border border-border/70 bg-[#e5f6fb] text-black"
   );
 
 export default async function Home() {
@@ -166,7 +166,7 @@ export default async function Home() {
                       </div>
                     </div>
                     <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-                      <span className={clsx(badgeStyles(), "text-black")}>{service.schedule}</span>
+                      <span className={badgeStyles()}>{service.schedule}</span>
                       <Button asChild className="gap-2 font-bold bg-[#283a6a] text-white hover:bg-[#1f2f59]">
                         <a href={`/our-services?service=${encodeURIComponent(service.title)}#services-booking`}>
                           Book Appointment
