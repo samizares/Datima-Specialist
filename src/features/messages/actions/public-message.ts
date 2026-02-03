@@ -7,6 +7,7 @@ import {
   toActionState,
 } from "@/components/form/utils/to-action-state";
 import { prisma } from "@/lib/prisma";
+import { resend } from "@/lib/resend";
 
 const messageSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -50,15 +51,29 @@ export const submitPublicMessage = async (
         address: "Not provided",
         telephone: data.phone,
         status: "PROSPECT",
-        attachmentId: "",
       },
     });
 
-    await prisma.message.create({
+    const message = await prisma.message.create({
       data: {
         clientId: client.id,
         content: [`Subject: ${data.subject}`, data.message].join("\n"),
       },
+    });
+
+    await resend.emails.send({
+      from: "no-reply@care.datimaspecialistclinics.com",
+      to: "samizares@hotmail.com",
+      subject: `New support message: ${data.subject}`,
+      text: [
+        `From: ${client.firstName} ${client.lastName}`,
+        `Email: ${data.email}`,
+        `Phone: ${data.phone}`,
+        `Client ID: ${client.id}`,
+        `Message ID: ${message.id}`,
+        "",
+        data.message,
+      ].join("\n"),
     });
   } catch (error) {
     return fromErrorToActionState(error, formData);

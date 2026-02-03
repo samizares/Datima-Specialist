@@ -12,6 +12,7 @@ const ThemeSwitcher = () => {
       variant="outline"
       size="icon"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      className="dark:bg-white dark:text-black dark:border-white"
     >
       <LucideSun
         className="

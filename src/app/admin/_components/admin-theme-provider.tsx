@@ -28,6 +28,7 @@ export function AdminThemeProvider({
 
   useEffect(() => {
     window.localStorage.setItem("datima-admin-theme", theme);
+    document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
 
   const value = useMemo(

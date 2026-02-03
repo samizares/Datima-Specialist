@@ -10,11 +10,11 @@ export default async function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const { user } = await getAuth();
+  const { user } = await getAuth();
 
-  // if (!user) {
-  //   redirect(signInPath());
-  // }
+  if (!user) {
+    redirect(signInPath());
+  }
   return (
     <AdminThemeProvider>
       <AdminShell>{children}</AdminShell>

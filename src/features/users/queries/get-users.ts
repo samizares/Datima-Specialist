@@ -22,6 +22,7 @@ export async function getUsers() {
       isAdmin: true,
       isSuperAdmin: true,
       createdAt: true,
+      attachmentId: true,
     },
   });
 }

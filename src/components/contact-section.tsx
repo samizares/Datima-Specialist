@@ -85,19 +85,19 @@ const ContactSection = () => {
               name="name"
               placeholder="Name"
               required
-              className="h-14 rounded-2xl border-0 bg-[#e5f6fb] px-4 text-base shadow-none placeholder:text-slate-500 focus-visible:ring-0"
+              className="h-14 rounded-2xl border-0 bg-[#e5f6fb] px-4 text-base text-black shadow-none placeholder:text-slate-500 focus-visible:ring-0"
             />
             <Input
               name="email"
               type="email"
               placeholder="Email"
               required
-              className="h-14 rounded-2xl border-0 bg-[#e5f6fb] px-4 text-base shadow-none placeholder:text-slate-500 focus-visible:ring-0"
+              className="h-14 rounded-2xl border-0 bg-[#e5f6fb] px-4 text-base text-black shadow-none placeholder:text-slate-500 focus-visible:ring-0"
             />
             <div className="relative">
               <select
                 name="subject"
-                className="h-14 w-full appearance-none rounded-2xl border-0 bg-[#e5f6fb] px-4 pr-10 text-base text-slate-600 shadow-none focus:outline-none"
+                className="h-14 w-full appearance-none rounded-2xl border-0 bg-[#e5f6fb] px-4 pr-10 text-base text-black shadow-none focus:outline-none"
                 defaultValue=""
                 required
               >
@@ -117,14 +117,14 @@ const ContactSection = () => {
               type="tel"
               placeholder="Phone"
               required
-              className="h-14 rounded-2xl border-0 bg-[#e5f6fb] px-4 text-base shadow-none placeholder:text-slate-500 focus-visible:ring-0"
+              className="h-14 rounded-2xl border-0 bg-[#e5f6fb] px-4 text-base text-black shadow-none placeholder:text-slate-500 focus-visible:ring-0"
             />
             <Textarea
               name="message"
               placeholder="Message"
               rows={5}
               required
-              className="min-h-[160px] rounded-2xl border-0 bg-[#e5f6fb] px-4 py-3 text-base shadow-none placeholder:text-slate-500 focus-visible:ring-0 sm:col-span-2"
+              className="min-h-[160px] rounded-2xl border-0 bg-[#e5f6fb] px-4 py-3 text-base text-black shadow-none placeholder:text-slate-500 focus-visible:ring-0 sm:col-span-2"
             />
           </div>
 

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "prebuild": "prisma generate",
     "build": "next build",
     "start": "next start",
@@ -43,6 +43,7 @@
     "date-fns": "^3.6.0",
     "fastest-levenshtein": "^1.0.16",
     "inngest": "^3.26.1",
+    "input-otp": "^1.4.2",
     "linkify-react": "^4.2.0",
     "lucide-react": "^0.561.0",
     "next": "^16.1.1",

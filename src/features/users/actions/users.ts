@@ -22,6 +22,7 @@ export type UserInput = {
   emailVerified: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
+  attachmentId?: string | null;
 };
 
 const baseUserSchema = z.object({
@@ -30,6 +31,7 @@ const baseUserSchema = z.object({
   emailVerified: z.boolean(),
   isAdmin: z.boolean(),
   isSuperAdmin: z.boolean(),
+  attachmentId: z.string().optional().nullable(),
 });
 
 const createUserSchema = baseUserSchema.extend({
@@ -60,11 +62,13 @@ export async function createUser(input: UserInput): Promise<ActionState> {
 
     const payload = {
       username: data.username,
+      fullName: data.username,
       email: data.email,
       emailVerified: data.emailVerified,
       ...(isSuperAdmin(user)
         ? { isAdmin: data.isAdmin, isSuperAdmin: data.isSuperAdmin }
         : {}),
+      attachmentId: data.attachmentId ?? null,
       passwordHash,
     };
 
@@ -88,15 +92,19 @@ export async function updateUser(
     const data = updateUserSchema.parse(input);
     const payload: {
       username: string;
+      fullName?: string | null;
       email: string;
       emailVerified: boolean;
       isAdmin?: boolean;
       isSuperAdmin?: boolean;
       passwordHash?: string;
+      attachmentId?: string | null;
     } = {
       username: data.username,
+      fullName: data.username,
       email: data.email,
       emailVerified: data.emailVerified,
+      attachmentId: data.attachmentId ?? null,
     };
 
     if (isSuperAdmin(user)) {

@@ -57,8 +57,8 @@ export function HomeGallery() {
   };
 
   return (
-    <section className="relative mt-[96px] w-full overflow-hidden" aria-label="Datima Specialist Clinics gallery">
-      <div className="relative h-[420px] sm:h-[460px] lg:h-[520px]">
+    <section className="relative z-0 mt-[96px] w-full overflow-visible sm:overflow-hidden isolate" aria-label="Datima Specialist Clinics gallery">
+      <div className="relative z-0 h-[420px] pb-12 sm:h-[460px] sm:pb-0 lg:h-[520px]">
         {slides.map((slide, index) => {
           const isActive = index === active;
           return (
@@ -78,11 +78,13 @@ export function HomeGallery() {
               }}
             >
               <div className="flex h-full items-end px-6 pb-8 pt-8 sm:px-10 lg:px-16">
-                <div className="flex max-w-md flex-col items-center space-y-4 rounded-3xl bg-white/85 p-6 text-slate-900 shadow-[0_20px_50px_-40px_rgba(15,23,42,0.45)] backdrop-blur-sm sm:p-8 lg:p-10">
+                <div className="flex max-w-md flex-col items-center space-y-4 rounded-3xl bg-white/85 p-4 text-slate-900 shadow-[0_20px_50px_-40px_rgba(15,23,42,0.45)] backdrop-blur-sm sm:p-8 lg:p-10">
                   <h2 className="font-[family-name:var(--font-display)] text-lg leading-tight text-slate-900 sm:text-xl lg:text-2xl">
                     {slide.title}
                   </h2>
-                  <p className="text-center text-sm text-slate-600 sm:text-base">At Datima, your health and well-being come first.</p>
+                  <p className="hidden text-center text-sm text-slate-600 sm:block sm:text-base">
+                    At Datima, your health and well-being come first.
+                  </p>
                   <Button
                     asChild
                     size="lg"
@@ -96,7 +98,7 @@ export function HomeGallery() {
           );
         })}
 
-        <div className="absolute inset-x-0 bottom-5 flex items-center justify-center gap-4 sm:bottom-6">
+        <div className="absolute inset-x-0 -bottom-12 z-10 flex items-center justify-center gap-4 sm:bottom-6">
           <button
             type="button"
             aria-label="Previous slide"

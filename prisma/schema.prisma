@@ -11,6 +11,7 @@ model User {
   createdAt 		  DateTime     @default(now())
   updatedAt 		  DateTime     @updatedAt
   username     			String    @unique
+  fullName          String?
   email        			String    @unique
   emailVerified     		Boolean   @default(false)
   isAdmin           Boolean   @default(false)
@@ -21,6 +22,8 @@ model User {
   passwordResetTokens     	PasswordResetToken[]
   emailVerificationTokens 	EmailVerificationToken[]
   blogs                Blog[]
+  attachmentId     String?    @unique
+  attachment       Attachment? @relation("UserAttachment", fields: [attachmentId], references: [id], onDelete: SetNull)
   schedulePosts       SchedulePost[]
  
   }
@@ -37,7 +40,8 @@ model Client {
   appointments  	Appointment[]   
   messages     		Message[] 
   status      		ClientStatus @default(PROSPECT)
-  attachmentId     String
+  attachmentId     String?    @unique
+  attachment       Attachment? @relation("ClientAttachment", fields: [attachmentId], references: [id], onDelete: SetNull)
   Testimonials     Testimonial[]
 
 }
@@ -87,16 +91,22 @@ model Appointment {
   doctor 		    Doctor?  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
 
   @@index([clientId])
+  @@index([doctorId])
+  @@index([clinicId])
 }
 
 model Attachment {
   id   		          String @id @default(cuid())
-  createdAt 		  DateTime     @default(now())
-  updatedAt 		  DateTime     @updatedAt
+  createdAt 		    DateTime     @default(now())
+  updatedAt 		    DateTime     @updatedAt
   name 		          String
-  attachmentTpe    	AttachmentType 
-  blogs             Blog[]
-  schedulePosts     SchedulePost[]
+  attachmentTpe    	AttachmentType
+  blog              Blog?        @relation("BlogAttachment")
+  schedulePost      SchedulePost? @relation("SchedulePostAttachment")
+  clinic            Clinic?      @relation("ClinicAttachment")
+  doctor            Doctor?      @relation("DoctorAttachment")
+  user              User?        @relation("UserAttachment")
+  client            Client?      @relation("ClientAttachment")
   }
 
 enum AttachmentType {
@@ -104,6 +114,9 @@ enum AttachmentType {
   ADMIN
   DOCTOR     
   BLOG
+  CLINIC
+  USER
+  SCHEDULE_POST
 }
 
 model Blog {
@@ -115,11 +128,11 @@ model Blog {
   content       String   @db.VarChar(2000)
   authorId      String
   author        User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  attachmentId  String
-  attachment    Attachment @relation(fields: [attachmentId], references: [id], onDelete: Cascade)
+  attachmentId  String   @unique
+  attachment    Attachment @relation("BlogAttachment", fields: [attachmentId], references: [id], onDelete: Cascade)
+  
 
   @@index([authorId])
-  @@index([attachmentId])
 }
 
 model SchedulePost {
@@ -132,11 +145,10 @@ model SchedulePost {
   scheduledFor  DateTime
   authorId      String
   author        User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  attachmentId  String
-  attachment    Attachment @relation(fields: [attachmentId], references: [id], onDelete: Cascade)
+  attachmentId  String?   @unique
+  attachment    Attachment? @relation("SchedulePostAttachment", fields: [attachmentId], references: [id], onDelete: SetNull)
 
   @@index([authorId])
-  @@index([attachmentId])
   @@index([scheduledFor])
 }
 
@@ -150,7 +162,8 @@ model Clinic {
   schedules	    ClinicSchedule[]
   doctors       Doctor[]
   appointments  Appointment[]
-  attachmentId     String
+  attachmentId     String?   @unique
+  attachment       Attachment? @relation("ClinicAttachment", fields: [attachmentId], references: [id], onDelete: SetNull)
   docSchedules  DoctorSchedule[]
 
 }
@@ -185,7 +198,8 @@ model Doctor {
   appointments  Appointment[]
   docSchedules	DoctorSchedule[]
   cliSchedules	ClinicSchedule[]
-  attachmentId   String?
+  attachmentId   String?   @unique
+  attachment     Attachment? @relation("DoctorAttachment", fields: [attachmentId], references: [id], onDelete: SetNull)
   
 }
 

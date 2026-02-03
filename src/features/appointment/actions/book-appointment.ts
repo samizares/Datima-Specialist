@@ -11,9 +11,8 @@ import { resend } from "@/lib/resend";
 
 const appointmentSchema = z
   .object({
-    fullName: z.string().optional(),
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
     email: z.string().min(1, "Email is required").email("Email is invalid"),
     address: z.string().optional(),
     telephone: z.string().min(1, "Telephone is required"),
@@ -24,14 +23,6 @@ const appointmentSchema = z
     setTime: z.string().min(1, "Appointment time is required"),
   })
   .superRefine((data, ctx) => {
-    if (!data.fullName && (!data.firstName || !data.lastName)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Name is required",
-        path: ["fullName"],
-      });
-    }
-
     if (!data.clinicId && !data.clinicName) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -49,9 +40,8 @@ export const bookAppointment = async (
 ) => {
   try {
     const data = appointmentSchema.parse({
-      fullName: formData.get("fullName") || undefined,
-      firstName: formData.get("firstName") || undefined,
-      lastName: formData.get("lastName") || undefined,
+      firstName: formData.get("firstName") ?? "",
+      lastName: formData.get("lastName") ?? "",
       email: formData.get("email"),
       address: formData.get("address") || undefined,
       telephone: formData.get("telephone"),
@@ -67,12 +57,8 @@ export const bookAppointment = async (
       return toActionState("ERROR", "Appointment date is invalid", formData);
     }
 
-    const fullName = data.fullName?.trim();
-    const nameParts = fullName ? fullName.split(/\s+/) : [];
-    const firstName =
-      data.firstName?.trim() || nameParts[0] || "New";
-    const lastName =
-      data.lastName?.trim() || nameParts.slice(1).join(" ") || "Patient";
+    const firstName = data.firstName.trim();
+    const lastName = data.lastName.trim();
     const address = data.address?.trim() || "Not provided";
 
     const clinic = data.clinicId
@@ -107,7 +93,6 @@ export const bookAppointment = async (
         address,
         telephone: data.telephone,
         status: "PATIENT",
-        attachmentId: "",
       },
     });
 
@@ -130,7 +115,7 @@ export const bookAppointment = async (
       : "No preference";
 
     await resend.emails.send({
-      from: "no-reply@app.road-to-next-app.com",
+      from: "no-reply@care.datimaspecialistclinics.com",
       to: SUPPORT_EMAIL,
       subject: "New appointment booked",
       text: [

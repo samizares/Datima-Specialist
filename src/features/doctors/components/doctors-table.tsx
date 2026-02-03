@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition, type FormEvent } from "react";
+import Image from "next/image";
 import { Pencil, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -37,6 +38,7 @@ import {
 } from "../actions/doctors";
 import { getDoctors } from "../queries/get-doctors";
 import Link from "next/link";
+import { attachmentDownloadPath } from "@/paths";
 
 type DoctorRecord = Awaited<ReturnType<typeof getDoctors>>[number];
 
@@ -223,6 +225,7 @@ export function DoctorsTable({
         <Table>
           <TableHeader className="bg-white text-xs font-semibold uppercase tracking-[0.12em] text-slate-400 dark:bg-slate-900 dark:text-slate-500">
             <TableRow className="border-slate-200/70 dark:border-slate-800">
+              <TableHead>Photo</TableHead>
               <TableHead>Doctor</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Clinic</TableHead>
@@ -236,6 +239,21 @@ export function DoctorsTable({
                   key={doctor.id}
                   className="border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-950"
                 >
+                  <TableCell>
+                    {doctor.attachmentId ? (
+                      <div className="relative h-10 w-14 overflow-hidden rounded-lg">
+                        <Image
+                          src={attachmentDownloadPath(doctor.attachmentId)}
+                          alt={`${doctor.firstName} ${doctor.lastName}`}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-sm text-slate-400">—</span>
+                    )}
+                  </TableCell>
                   <TableCell className="font-semibold text-slate-900 dark:text-white">
                     <Link
                       href={`/admin/doctors/${doctor.id}`}
@@ -274,7 +292,7 @@ export function DoctorsTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="py-10 text-center text-sm text-slate-500">
+                <TableCell colSpan={5} className="py-10 text-center text-sm text-slate-500">
                   No doctors found.
                 </TableCell>
               </TableRow>

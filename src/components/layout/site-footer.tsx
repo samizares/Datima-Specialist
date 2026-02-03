@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { navItems } from "@/components/nav-items";
+import { signInPath } from "@/paths";
 import { cn } from "@/lib/utils";
 
 type SiteFooterProps = {
@@ -38,7 +39,10 @@ export function SiteFooter({ className }: SiteFooterProps) {
           </p>
         </div>
         <div className="flex flex-wrap gap-3 text-sm font-semibold text-foreground">
-          {navItems.slice(0, 5).map((item) => (
+          {navItems
+            .filter((item) => item.label !== "Blog")
+            .slice(0, 4)
+            .map((item) => (
             <Link
               key={item.label}
               href={item.href}
@@ -46,7 +50,13 @@ export function SiteFooter({ className }: SiteFooterProps) {
             >
               {item.label}
             </Link>
-          ))}
+            ))}
+          <Link
+            href={signInPath()}
+            className="rounded-full px-3 py-2 transition hover:bg-primary/10 hover:text-primary"
+          >
+            Admin(Staff Only)
+          </Link>
         </div>
         <div className="text-sm text-muted-foreground">
           <p>1, Fola Agoro Street, Off Bajulaye Road, Somulu, Lagos.</p>

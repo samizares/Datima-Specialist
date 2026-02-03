@@ -410,7 +410,7 @@ export function AdminShell({ children }: AdminShellProps) {
                       />
                     </div>
                     <div className="hidden text-sm font-semibold text-slate-900 dark:text-white sm:block">
-                      Admin
+                      {user?.username ?? "Admin"}
                     </div>
                     <ChevronDown className="h-4 w-4 text-slate-400" aria-hidden />
                   </button>
@@ -420,9 +420,9 @@ export function AdminShell({ children }: AdminShellProps) {
                   className="w-56 rounded-2xl border-slate-200 bg-white/95 p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900"
                 >
                   <DropdownMenuLabel className="text-xs text-slate-500 dark:text-slate-400">
-                    Admin
+                    {user?.username ?? "Admin"}
                     <span className="mt-1 block text-sm font-semibold text-slate-900 dark:text-white">
-                      admin@datimaspecialistclinics.com
+                      {user?.email ?? "admin@datimaspecialistclinics.com"}
                     </span>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-800" />

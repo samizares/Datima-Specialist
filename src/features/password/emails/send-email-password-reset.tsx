@@ -9,9 +9,9 @@ export const sendEmailPasswordReset = async (
   return await resend.emails.send({
     // your own custom domain here
     // or your email that you used to sign up at Resend
-    from: "app@road-to-next.com",
+    from: "no-reply@care.datimaspecialistclinics.com",
     to: email,
-    subject: "Password Reset from TicketBounty",
+    subject: "Password Reset from Datima Specialist Clinics",
     react: <EmailPasswordReset toName={username} url={passwordResetLink} />,
   });
 };

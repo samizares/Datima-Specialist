@@ -33,6 +33,9 @@ export function AppointmentForm({ clinics }: AppointmentFormProps) {
   const [doctorId, setDoctorId] = useState("");
   const [appointmentDate, setAppointmentDate] = useState("");
   const [appointmentTime, setAppointmentTime] = useState("");
+
+  const truncateLabel = (value: string, max = 28) =>
+    value.length > max ? `${value.slice(0, max - 1)}…` : value;
   const [actionState, action] = useActionState(
     bookAppointment,
     EMPTY_ACTION_STATE
@@ -57,19 +60,38 @@ export function AppointmentForm({ clinics }: AppointmentFormProps) {
         <div className="grid gap-6 md:grid-cols-2 md:gap-x-8">
           <div className="group relative" data-filled={Boolean(appointmentDate)}>
             <Input
-              id="fullName"
-              name="fullName"
+              id="firstName"
+              name="firstName"
               placeholder="Name"
               required
               className="peer h-14 rounded-2xl border-2 border-transparent bg-[#e5f6fb] px-4 text-base transition focus-visible:ring-0 placeholder:text-transparent group-hover:border-primary group-hover:bg-white group-hover:ring-2 group-hover:ring-primary/20 group-focus-within:border-primary group-focus-within:bg-white group-focus-within:ring-2 group-focus-within:ring-primary/20"
             />
             <Label
-              htmlFor="fullName"
+              htmlFor="firstName"
               className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-500 transition-all duration-200 group-hover:top-2 group-hover:text-xs group-hover:text-primary group-focus-within:top-2 group-focus-within:text-xs group-focus-within:text-primary peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary peer-[&:not(:placeholder-shown)]:top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-primary"
             >
-              Name
+              First Name
             </Label>
           </div>
+          <div className="group relative" data-filled={Boolean(appointmentDate)}>
+            <Input
+              id="lastName"
+              name="lastName"
+              placeholder="Last Name"
+              required
+              className="peer h-14 rounded-2xl border-2 border-transparent bg-[#e5f6fb] px-4 text-base transition focus-visible:ring-0 placeholder:text-transparent group-hover:border-primary group-hover:bg-white group-hover:ring-2 group-hover:ring-primary/20 group-focus-within:border-primary group-focus-within:bg-white group-focus-within:ring-2 group-focus-within:ring-primary/20"
+            />
+            <Label
+              htmlFor="lastName"
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-500 transition-all duration-200 group-hover:top-2 group-hover:text-xs group-hover:text-primary group-focus-within:top-2 group-focus-within:text-xs group-focus-within:text-primary peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary peer-[&:not(:placeholder-shown)]:top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-primary"
+            >
+              Last Name
+            </Label>
+          </div>
+        
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 md:gap-x-8">
           <div className="group relative" data-filled={Boolean(appointmentDate)}>
             <Input
               id="email"
@@ -88,16 +110,13 @@ export function AppointmentForm({ clinics }: AppointmentFormProps) {
               Email
             </Label>
           </div>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2 md:gap-x-8">
           <div
             className="group relative"
             data-filled={Boolean(clinicId)}
           >
             <Label
               htmlFor="clinicId"
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-500 opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:top-2 group-hover:text-xs group-hover:text-primary group-focus-within:opacity-100 group-focus-within:top-2 group-focus-within:text-xs group-focus-within:text-primary group-data-[filled=true]:opacity-100 group-data-[filled=true]:top-2 group-data-[filled=true]:text-xs group-data-[filled=true]:text-primary"
+              className="pointer-events-none absolute left-4 top-1/2 max-w-[calc(100%-3.5rem)] -translate-y-1/2 truncate whitespace-nowrap text-sm text-slate-500 opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:top-2 group-hover:text-xs group-hover:text-primary group-focus-within:opacity-100 group-focus-within:top-2 group-focus-within:text-xs group-focus-within:text-primary group-data-[filled=true]:opacity-100 group-data-[filled=true]:top-2 group-data-[filled=true]:text-xs group-data-[filled=true]:text-primary"
             >
               Choose clinics
             </Label>
@@ -106,7 +125,7 @@ export function AppointmentForm({ clinics }: AppointmentFormProps) {
               name="clinicId"
               value={clinicId}
               onChange={(event) => setClinicId(event.target.value)}
-              className="h-14 w-full appearance-none rounded-2xl border-2 border-transparent bg-[#e5f6fb] px-4 pr-10 text-base text-slate-700 transition focus-visible:outline-none focus-visible:ring-0 group-hover:border-primary group-hover:bg-white group-hover:ring-2 group-hover:ring-primary/20 group-focus-within:border-primary group-focus-within:bg-white group-focus-within:ring-2 group-focus-within:ring-primary/20"
+              className="h-14 w-full max-w-full appearance-none truncate rounded-2xl border-2 border-transparent bg-[#e5f6fb] px-4 pr-12 text-sm text-slate-700 transition focus-visible:outline-none focus-visible:ring-0 group-hover:border-primary group-hover:bg-white group-hover:ring-2 group-hover:ring-primary/20 group-focus-within:border-primary group-focus-within:bg-white group-focus-within:ring-2 group-focus-within:ring-primary/20 sm:text-base"
               required
             >
               <option value="" disabled>
@@ -114,33 +133,11 @@ export function AppointmentForm({ clinics }: AppointmentFormProps) {
               </option>
               {clinics.map((clinic) => (
                 <option key={clinic.id} value={clinic.id}>
-                  {clinic.name}
+                  {truncateLabel(clinic.name)}
                 </option>
               ))}
             </select>
             <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-          </div>
-          <div
-            className="group relative"
-            data-filled={Boolean(doctorId)}
-          >
-            <Label
-              htmlFor="doctorId"
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-500 opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:top-2 group-hover:text-xs group-hover:text-primary group-focus-within:opacity-100 group-focus-within:top-2 group-focus-within:text-xs group-focus-within:text-primary group-data-[filled=true]:opacity-100 group-data-[filled=true]:top-2 group-data-[filled=true]:text-xs group-data-[filled=true]:text-primary"
-            >
-              Select Doctors
-            </Label>
-            <select
-              id="doctorId"
-              name="doctorId"
-              value={doctorId}
-              onChange={(event) => setDoctorId(event.target.value)}
-              className="h-14 w-full appearance-none rounded-2xl border-2 border-transparent bg-[#e5f6fb] px-4 pr-10 text-base text-slate-700 opacity-70 transition focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed"
-              disabled
-            >
-              <option value="">Select Doctors</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           </div>
         </div>
 

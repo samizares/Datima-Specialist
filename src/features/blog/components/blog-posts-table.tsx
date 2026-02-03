@@ -1,21 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition, type FormEvent } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { format } from "date-fns";
 import { Pencil, Search, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 
 import { useConfirmDialog } from "@/components/confirm-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -32,8 +23,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
-import { adminBlogCreatePath } from "@/paths";
-import { deleteBlog, updateBlog, updateScheduledPost } from "../actions/blogs";
+import Image from "next/image";
+import { adminBlogCreatePath, attachmentDownloadPath } from "@/paths";
+import { deleteBlog } from "../actions/blogs";
 import { getBlogPosts } from "../queries/get-blog-posts";
 
 const statusLabels = {
@@ -42,22 +34,6 @@ const statusLabels = {
 } as const;
 
 type BlogRecord = Awaited<ReturnType<typeof getBlogPosts>>[number];
-
-type BlogFormValues = {
-  title: string;
-  tags: string;
-  content: string;
-  scheduleDate: string;
-  scheduleTime: string;
-};
-
-const defaultFormValues: BlogFormValues = {
-  title: "",
-  tags: "",
-  content: "",
-  scheduleDate: "",
-  scheduleTime: "",
-};
 
 const DeleteBlogButton = ({
   blogId,
@@ -102,11 +78,6 @@ const parseTags = (tags: string) =>
     .map((tag) => tag.trim())
     .filter(Boolean);
 
-const buildScheduleValue = (date: string, time: string) => {
-  if (!date || !time) return null;
-  return new Date(`${date}T${time}`).toISOString();
-};
-
 export function BlogPostsTable({
   initialPosts,
   canEdit,
@@ -117,9 +88,6 @@ export function BlogPostsTable({
   canDelete: boolean;
 }) {
   const [posts, setPosts] = useState<BlogRecord[]>(initialPosts);
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<BlogRecord | null>(null);
-  const [formValues, setFormValues] = useState<BlogFormValues>(defaultFormValues);
   const [isPending, startTransition] = useTransition();
 
   const tableRows = useMemo(() => posts.slice(0, 6), [posts]);
@@ -131,77 +99,9 @@ export function BlogPostsTable({
     });
   };
 
-  useEffect(() => {
-    if (!formOpen) return;
-    if (editing) {
-      const scheduleDate =
-        editing.status === "SCHEDULED"
-          ? format(new Date(editing.date), "yyyy-MM-dd")
-          : "";
-      const scheduleTime =
-        editing.status === "SCHEDULED"
-          ? format(new Date(editing.date), "HH:mm")
-          : "";
-
-      setFormValues({
-        title: editing.title,
-        tags: editing.tags,
-        content: editing.content,
-        scheduleDate,
-        scheduleTime,
-      });
-    } else {
-      setFormValues(defaultFormValues);
-    }
-  }, [editing, formOpen]);
-
   const handleEditClick = (post: BlogRecord) => {
     if (!canEdit) return;
-    setEditing(post);
-    setFormOpen(true);
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!editing) return;
-
-    startTransition(async () => {
-      if (editing.status === "SCHEDULED") {
-        const scheduledFor = buildScheduleValue(
-          formValues.scheduleDate,
-          formValues.scheduleTime
-        );
-        if (!scheduledFor) {
-          toast.error("Schedule date and time are required.");
-          return;
-        }
-        const action = await updateScheduledPost(editing.id, {
-          title: formValues.title,
-          tags: formValues.tags,
-          content: formValues.content,
-          scheduledFor,
-        });
-        if (action.status === "ERROR") {
-          toast.error(action.message || "Please check the form fields.");
-          return;
-        }
-      } else {
-        const action = await updateBlog(editing.id, {
-          title: formValues.title,
-          tags: formValues.tags,
-          content: formValues.content,
-        });
-        if (action.status === "ERROR") {
-          toast.error(action.message || "Please check the form fields.");
-          return;
-        }
-      }
-
-      toast.success("Post updated.");
-      setFormOpen(false);
-      setEditing(null);
-      loadPosts();
-    });
+    window.location.href = `${adminBlogCreatePath()}?postId=${post.id}`;
   };
 
   return (
@@ -254,6 +154,7 @@ export function BlogPostsTable({
         <Table>
           <TableHeader className="bg-white text-xs font-semibold uppercase tracking-[0.12em] text-slate-400 dark:bg-slate-900 dark:text-slate-500">
             <TableRow className="border-slate-200/70 dark:border-slate-800">
+              <TableHead>Cover</TableHead>
               <TableHead>Title</TableHead>
               <TableHead>Tags</TableHead>
               <TableHead>Author</TableHead>
@@ -269,6 +170,17 @@ export function BlogPostsTable({
                   key={post.id}
                   className="border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-950"
                 >
+                  <TableCell>
+                    <div className="relative h-12 w-16 overflow-hidden rounded-lg">
+                      <Image
+                        src={attachmentDownloadPath(post.attachmentId)}
+                        alt={post.title}
+                        fill
+                        sizes="64px"
+                        className="object-cover"
+                      />
+                    </div>
+                  </TableCell>
                   <TableCell className="font-semibold text-slate-900 dark:text-white">
                     {post.title}
                   </TableCell>
@@ -318,7 +230,7 @@ export function BlogPostsTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-sm text-slate-500">
+                <TableCell colSpan={7} className="py-10 text-center text-sm text-slate-500">
                   No blog posts found.
                 </TableCell>
               </TableRow>
@@ -326,99 +238,6 @@ export function BlogPostsTable({
           </TableBody>
         </Table>
       </div>
-
-      <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-2xl rounded-3xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-white">
-              Edit post
-            </DialogTitle>
-          </DialogHeader>
-          <form className="mt-4 grid gap-4" onSubmit={handleSubmit}>
-            <div className="grid gap-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={formValues.title}
-                onChange={(event) =>
-                  setFormValues((prev) => ({ ...prev, title: event.target.value }))
-                }
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="tags">Tags</Label>
-              <Input
-                id="tags"
-                placeholder="Health, Wellness, Tips"
-                value={formValues.tags}
-                onChange={(event) =>
-                  setFormValues((prev) => ({ ...prev, tags: event.target.value }))
-                }
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="content">Content</Label>
-              <textarea
-                id="content"
-                className="min-h-[140px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200"
-                value={formValues.content}
-                onChange={(event) =>
-                  setFormValues((prev) => ({ ...prev, content: event.target.value }))
-                }
-                required
-              />
-            </div>
-            {editing?.status === "SCHEDULED" ? (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label htmlFor="scheduleDate">Schedule date</Label>
-                  <Input
-                    id="scheduleDate"
-                    type="date"
-                    value={formValues.scheduleDate}
-                    onChange={(event) =>
-                      setFormValues((prev) => ({
-                        ...prev,
-                        scheduleDate: event.target.value,
-                      }))
-                    }
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="scheduleTime">Schedule time</Label>
-                  <Input
-                    id="scheduleTime"
-                    type="time"
-                    value={formValues.scheduleTime}
-                    onChange={(event) =>
-                      setFormValues((prev) => ({
-                        ...prev,
-                        scheduleTime: event.target.value,
-                      }))
-                    }
-                    required
-                  />
-                </div>
-              </div>
-            ) : null}
-            <DialogFooter className="gap-2">
-              <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="rounded-full bg-blue-600 text-white hover:bg-blue-700"
-                disabled={isPending}
-              >
-                Save changes
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

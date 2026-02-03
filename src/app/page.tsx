@@ -147,11 +147,11 @@ export default async function Home() {
               
             </div>
             <div className="rounded-3xl bg-white/85 p-6 shadow-xl ring-1 ring-border/70">
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid place-items-center gap-6 md:grid-cols-2 md:place-items-stretch">
                 {serviceLines.slice(0, 4).map((service) => (
-                  <Card key={service.title} className="border border-border/70 bg-white/95 p-6 shadow-sm">
-                    <div className="flex gap-4">
-                      <div className="relative h-32 w-[150px] shrink-0 overflow-hidden rounded-2xl bg-secondary/60">
+                  <Card key={service.title} className="mx-auto w-full max-w-[360px] border border-border/70 bg-white/95 p-6 shadow-sm md:max-w-none">
+                    <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+                      <div className="relative h-32 w-full max-w-[260px] shrink-0 overflow-hidden rounded-2xl bg-secondary/60 sm:w-[150px]">
                         <Image
                           src={service.image}
                           alt={service.title}
@@ -194,7 +194,7 @@ export default async function Home() {
                 Latest stories from Datima Specialist Clinics.
               </h3>
             </div>
-            <div className="grid gap-6 pl-8 md:grid-cols-3">
+            <div className="grid gap-6 px-4 md:grid-cols-3 lg:px-8">
               {blogPosts.slice(0, 3).map((post, index) => (
                 <article key={post.id} className="rounded-2xl border bg-white shadow-sm">
                   <div className="relative h-48 w-full overflow-hidden rounded-t-2xl">
@@ -225,8 +225,6 @@ export default async function Home() {
             </div>
           </section>
 
-          <ContactSection />
-
           <section id="booking" className="grid gap-8 lg:grid-cols-[1fr_0.9fr] dark:text-black">
             <div className="relative min-h-[320px] overflow-hidden rounded-3xl bg-white/70 shadow-lg">
               <Image
@@ -248,6 +246,8 @@ export default async function Home() {
               <AppointmentForm clinics={clinics} />
             </Suspense>
           </section>
+          <ContactSection />
+
         </div>
       </section>
     </main>

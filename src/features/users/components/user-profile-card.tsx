@@ -31,6 +31,7 @@ type UserFormValues = {
   emailVerified: string;
   isAdmin: string;
   isSuperAdmin: string;
+  attachmentId: string;
 };
 
 const defaultFormValues: UserFormValues = {
@@ -40,6 +41,7 @@ const defaultFormValues: UserFormValues = {
   emailVerified: "false",
   isAdmin: "false",
   isSuperAdmin: "false",
+  attachmentId: "",
 };
 
 const getRoleLabel = (user: User) => {
@@ -71,6 +73,7 @@ export function UserProfileCard({
       emailVerified: String(profile.emailVerified),
       isAdmin: String(profile.isAdmin),
       isSuperAdmin: String(profile.isSuperAdmin),
+      attachmentId: profile.attachmentId ?? "",
     });
   }, [formOpen, profile]);
 
@@ -84,6 +87,7 @@ export function UserProfileCard({
         emailVerified: formValues.emailVerified === "true",
         isAdmin: formValues.isAdmin === "true",
         isSuperAdmin: formValues.isSuperAdmin === "true",
+        attachmentId: formValues.attachmentId || null,
       };
       const action = await updateUser(profile.id, payload);
       if (action.status === "ERROR") {

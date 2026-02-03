@@ -52,6 +52,7 @@ export const signUp = async (_actionState: ActionState, formData: FormData) => {
     const user = await prisma.user.create({
       data: {
         username,
+        fullName: username,
         email,
         passwordHash,
       },

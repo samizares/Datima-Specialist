@@ -8,12 +8,12 @@ import {
     Text,
   } from "@react-email/components";
   
-  type EmailVerificationProps = {
+  type EmailNewAdminProps = {
     toName: string;
-    code: string;
+    url: string;
   };
   
-  const EmailVerification = ({ toName, code }: EmailVerificationProps) => {
+  const EmailNewAdmin = ({ toName, url }: EmailNewAdminProps) => {
     return (
       <Html>
         <Head />
@@ -22,13 +22,12 @@ import {
             <Container>
               <Section>
                 <Text>
-                  Hello {toName}, please verify your email address by using the
-                  following code:
+                  Hello {toName}, A new User has been created.LogIn to activate their account to Admin Status
                 </Text>
               </Section>
               <Section>
                 <Text className="bg-black rounded text-white p-2 m-2">
-                  {code}
+                  {url}
                 </Text>
               </Section>
             </Container>
@@ -38,10 +37,10 @@ import {
     );
   };
   
-  EmailVerification.PreviewProps = {
+  EmailNewAdmin.PreviewProps = {
     toName: "Samuel Oghogho",
-    code: "UHYGTVBHGTTF",
-  } as EmailVerificationProps;
+    url: "https://datima-specialist-clinics.com/admin",
+  } as EmailNewAdminProps;
   
-  export default EmailVerification;
+  export default EmailNewAdmin;
   

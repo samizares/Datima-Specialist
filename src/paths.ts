@@ -1,4 +1,5 @@
 export const homePath = () => "/";
+export const adminWaitPath = () => "/waiting";
 export const adminHomePath = () => "/admin";
 export const adminUsersPath = () => "/admin/users";
 export const adminUserDetailPath = (userId: string) =>

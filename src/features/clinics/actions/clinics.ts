@@ -17,13 +17,13 @@ import { adminClinicsPath } from "@/paths";
 export type ClinicInput = {
   name: string;
   desc: string;
-  attachmentId: string;
+  attachmentId?: string | null;
 };
 
 const clinicSchema = z.object({
   name: z.string().min(1, "Clinic name is required"),
   desc: z.string().min(1, "Description is required"),
-  attachmentId: z.string().min(1, "Attachment ID is required"),
+  attachmentId: z.string().optional().nullable(),
 });
 
 const ensureAdminAccess = (user: Awaited<ReturnType<typeof getAuthOrRedirect>>["user"]) => {

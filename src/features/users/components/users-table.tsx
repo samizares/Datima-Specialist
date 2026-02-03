@@ -31,7 +31,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { adminUserDetailPath } from "@/paths";
+import Image from "next/image";
+import { adminUserDetailPath, attachmentDownloadPath } from "@/paths";
 import { UserFormFields } from "./user-form-fields";
 import { createUser, deleteUser, updateUser } from "../actions/users";
 import { getUsers } from "../queries/get-users";
@@ -45,6 +46,7 @@ type UserFormValues = {
   emailVerified: string;
   isAdmin: string;
   isSuperAdmin: string;
+  attachmentId: string;
 };
 
 const defaultFormValues: UserFormValues = {
@@ -54,6 +56,7 @@ const defaultFormValues: UserFormValues = {
   emailVerified: "false",
   isAdmin: "false",
   isSuperAdmin: "false",
+  attachmentId: "",
 };
 
 const DeleteUserButton = ({
@@ -127,6 +130,7 @@ export function UsersTable({
         emailVerified: String(editing.emailVerified),
         isAdmin: String(editing.isAdmin),
         isSuperAdmin: String(editing.isSuperAdmin),
+        attachmentId: editing.attachmentId ?? "",
       });
     } else {
       setFormValues(defaultFormValues);
@@ -155,6 +159,7 @@ export function UsersTable({
         emailVerified: formValues.emailVerified === "true",
         isAdmin: formValues.isAdmin === "true",
         isSuperAdmin: formValues.isSuperAdmin === "true",
+        attachmentId: formValues.attachmentId || null,
       };
 
       const action = editing
@@ -224,6 +229,7 @@ export function UsersTable({
         <Table>
           <TableHeader className="bg-white text-xs font-semibold uppercase tracking-[0.12em] text-slate-400 dark:bg-slate-900 dark:text-slate-500">
             <TableRow className="border-slate-200/70 dark:border-slate-800">
+              <TableHead>Photo</TableHead>
               <TableHead>User</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Verified</TableHead>
@@ -239,6 +245,21 @@ export function UsersTable({
                   key={user.id}
                   className="border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-950"
                 >
+                  <TableCell>
+                    {user.attachmentId ? (
+                      <div className="relative h-10 w-14 overflow-hidden rounded-lg">
+                        <Image
+                          src={attachmentDownloadPath(user.attachmentId)}
+                          alt={user.username}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-sm text-slate-400">—</span>
+                    )}
+                  </TableCell>
                   <TableCell className="font-semibold text-slate-900 dark:text-white">
                     <Link
                       href={adminUserDetailPath(user.id)}
@@ -287,7 +308,7 @@ export function UsersTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-sm text-slate-500">
+                <TableCell colSpan={7} className="py-10 text-center text-sm text-slate-500">
                   No users found.
                 </TableCell>
               </TableRow>

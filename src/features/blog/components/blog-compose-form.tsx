@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, useTransition, type ChangeEvent } from "react";
 import Image from "next/image";
 import { CalendarDays, ImageUp, Plus, SendHorizonal, X } from "lucide-react";
 import { toast } from "sonner";
@@ -16,10 +16,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { adminBlogAllPath } from "@/paths";
+import { adminBlogAllPath, attachmentDownloadPath } from "@/paths";
 import { BlogEditor, type BlogEditorHandle } from "./blog-editor";
-import { createBlog, uploadBlogImage } from "../actions/blogs";
+import { createBlog, updateBlog, updateScheduledPost, uploadBlogImage } from "../actions/blogs";
 import { useRouter } from "next/navigation";
+import type { BlogPostDetail } from "../queries/get-blog-post";
 
 const defaultForm = {
   title: "",
@@ -38,9 +39,16 @@ type BlogComposeFormProps = {
     username: string;
     email: string;
   };
+  initialPost?: BlogPostDetail | null;
 };
 
-export function BlogComposeForm({ author }: BlogComposeFormProps) {
+const parseTags = (tags: string) =>
+  tags
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+
+export function BlogComposeForm({ author, initialPost }: BlogComposeFormProps) {
   const router = useRouter();
   const editorRef = useRef<BlogEditorHandle | null>(null);
   const coverInputRef = useRef<HTMLInputElement | null>(null);
@@ -114,20 +122,90 @@ export function BlogComposeForm({ author }: BlogComposeFormProps) {
       ? new Date(`${form.scheduleDate}T${form.scheduleTime}`).toISOString()
       : null;
 
+  useEffect(() => {
+    if (!initialPost) return;
+    const scheduleDate =
+      initialPost.status === "SCHEDULED" && initialPost.scheduledFor
+        ? new Date(initialPost.scheduledFor).toISOString().slice(0, 10)
+        : "";
+    const scheduleTime =
+      initialPost.status === "SCHEDULED" && initialPost.scheduledFor
+        ? new Date(initialPost.scheduledFor).toISOString().slice(11, 16)
+        : "";
+
+    setForm({
+      title: initialPost.title,
+      tags: parseTags(initialPost.tags),
+      tagInput: "",
+      content: initialPost.content,
+      coverAttachmentId: initialPost.attachmentId,
+      publishMode: initialPost.status === "SCHEDULED" ? "schedule" : "now",
+      scheduleDate,
+      scheduleTime,
+    });
+    setCoverPreview(attachmentDownloadPath(initialPost.attachmentId));
+  }, [initialPost]);
+
   const handleSubmit = () => {
     startTransition(async () => {
       if (!form.coverAttachmentId) {
         toast.error("Upload a cover image before publishing.");
         return;
       }
-      const result = await createBlog({
-        title: form.title,
-        tags: form.tags.join(", "),
-        content: form.content,
-        attachmentId: form.coverAttachmentId,
-        publishMode: form.publishMode,
-        scheduledFor: scheduleValue,
-      });
+      if (!form.title.trim()) {
+        toast.error("Title is required.");
+        return;
+      }
+      if (!form.content.trim()) {
+        toast.error("Content is required.");
+        return;
+      }
+      const nextTags = form.tags.length
+        ? form.tags
+        : form.tagInput.trim()
+        ? [form.tagInput.trim()]
+        : [];
+      if (!nextTags.length) {
+        toast.error("Add at least one tag.");
+        return;
+      }
+      if (form.publishMode === "schedule" && !scheduleValue) {
+        toast.error("Schedule date and time are required.");
+        return;
+      }
+      if (nextTags !== form.tags) {
+        setForm((prev) => ({
+          ...prev,
+          tags: nextTags,
+          tagInput: "",
+        }));
+      }
+      if (initialPost?.status === "SCHEDULED" && !scheduleValue) {
+        toast.error("Schedule date and time are required.");
+        return;
+      }
+
+      const result = initialPost
+        ? initialPost.status === "SCHEDULED"
+          ? await updateScheduledPost(initialPost.id, {
+              title: form.title,
+              tags: nextTags.join(", "),
+              content: form.content,
+              scheduledFor: scheduleValue ?? "",
+            })
+          : await updateBlog(initialPost.id, {
+              title: form.title,
+              tags: nextTags.join(", "),
+              content: form.content,
+            })
+        : await createBlog({
+            title: form.title,
+            tags: nextTags.join(", "),
+            content: form.content,
+            attachmentId: form.coverAttachmentId,
+            publishMode: form.publishMode,
+            scheduledFor: scheduleValue ?? undefined,
+          });
       if (result.status === "ERROR") {
         toast.error(result.message || "Please check the form fields.");
         return;
@@ -245,7 +323,7 @@ export function BlogComposeForm({ author }: BlogComposeFormProps) {
                       src={coverPreview}
                       alt="Cover preview"
                       width={320}
-                      height={180}
+                      height={200}
                       className="h-40 w-full object-cover"
                     />
                   </div>

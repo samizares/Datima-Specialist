@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent, type ChangeEvent } from "react";
+import Image from "next/image";
 import { Pencil, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { AttachmentType } from "@prisma/client";
 
 import { useConfirmDialog } from "@/components/confirm-dialog";
 import { Button } from "@/components/ui/button";
@@ -36,6 +38,8 @@ import {
   updateClinic,
 } from "../actions/clinics";
 import { getClinics } from "../queries/get-clinics";
+import { uploadAttachment } from "@/features/attachment/actions/upload-attachment";
+import { attachmentDownloadPath } from "@/paths";
 
 type ClinicRecord = Awaited<ReturnType<typeof getClinics>>[number];
 
@@ -102,6 +106,9 @@ export function ClinicsTable({
   const [editing, setEditing] = useState<ClinicRecord | null>(null);
   const [formValues, setFormValues] = useState<ClinicFormValues>(defaultFormValues);
   const [isPending, startTransition] = useTransition();
+  const [isUploading, setUploading] = useState(false);
+  const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
+  const uploadRef = useRef<HTMLInputElement | null>(null);
 
   const tableRows = useMemo(() => clinics.slice(0, 6), [clinics]);
 
@@ -118,12 +125,37 @@ export function ClinicsTable({
       setFormValues({
         name: editing.name,
         desc: editing.desc,
-        attachmentId: editing.attachmentId,
+        attachmentId: editing.attachmentId ?? "",
       });
+      setAttachmentPreview(
+        editing.attachmentId ? attachmentDownloadPath(editing.attachmentId) : null
+      );
     } else {
       setFormValues(defaultFormValues);
+      setAttachmentPreview(null);
     }
   }, [editing, formOpen]);
+
+  const handleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const result = await uploadAttachment(AttachmentType.CLINIC, file);
+    if (result.status === "ERROR") {
+      toast.error(result.message || "Image upload failed.");
+      setUploading(false);
+      return;
+    }
+    const attachmentId = result.data?.attachmentId;
+    if (!attachmentId) {
+      toast.error("Image upload failed.");
+      setUploading(false);
+      return;
+    }
+    setFormValues((prev) => ({ ...prev, attachmentId }));
+    setAttachmentPreview(URL.createObjectURL(file));
+    setUploading(false);
+  };
 
   const handleAddClick = () => {
     if (!canEdit) return;
@@ -140,9 +172,13 @@ export function ClinicsTable({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     startTransition(async () => {
+      const payload = {
+        ...formValues,
+        attachmentId: formValues.attachmentId || null,
+      };
       const action = editing
-        ? await updateClinic(editing.id, formValues)
-        : await createClinic(formValues);
+        ? await updateClinic(editing.id, payload)
+        : await createClinic(payload);
       if (action.status === "ERROR") {
         toast.error(action.message || "Please check the form fields.");
         return;
@@ -208,7 +244,7 @@ export function ClinicsTable({
             <TableRow className="border-slate-200/70 dark:border-slate-800">
               <TableHead>Clinic</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>Attachment</TableHead>
+              <TableHead>Image</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -225,8 +261,20 @@ export function ClinicsTable({
                   <TableCell className="max-w-md truncate text-slate-500 dark:text-slate-400">
                     {clinic.desc}
                   </TableCell>
-                  <TableCell className="text-slate-500 dark:text-slate-400">
-                    {clinic.attachmentId}
+                  <TableCell>
+                    {clinic.attachmentId ? (
+                      <div className="relative h-10 w-14 overflow-hidden rounded-lg">
+                        <Image
+                          src={attachmentDownloadPath(clinic.attachmentId)}
+                          alt={clinic.name}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-sm text-slate-400">—</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -292,15 +340,41 @@ export function ClinicsTable({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="attachmentId">Attachment ID</Label>
-              <Input
-                id="attachmentId"
-                value={formValues.attachmentId}
-                onChange={(event) =>
-                  setFormValues((prev) => ({ ...prev, attachmentId: event.target.value }))
-                }
-                required
-              />
+              <Label>Clinic image</Label>
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-950">
+                {attachmentPreview ? (
+                  <div className="space-y-3">
+                    <div className="relative h-36 w-full overflow-hidden rounded-xl border border-slate-200">
+                      <Image
+                        src={attachmentPreview}
+                        alt="Clinic preview"
+                        fill
+                        sizes="480px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => uploadRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      Replace image
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-full"
+                    onClick={() => uploadRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    Upload image
+                  </Button>
+                )}
+              </div>
             </div>
             <DialogFooter className="gap-2">
               <Button
@@ -321,6 +395,13 @@ export function ClinicsTable({
           </form>
         </DialogContent>
       </Dialog>
+      <input
+        ref={uploadRef}
+        type="file"
+        accept="image/png,image/jpeg,image/jpg"
+        className="hidden"
+        onChange={handleUpload}
+      />
     </div>
   );
 }

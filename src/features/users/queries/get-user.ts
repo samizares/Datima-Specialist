@@ -21,6 +21,7 @@ export async function getUser(userId: string) {
       isAdmin: true,
       isSuperAdmin: true,
       createdAt: true,
+      attachmentId: true,
     },
   });
 }
