@@ -171,14 +171,16 @@ export function BlogPostsTable({
                   className="border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-950"
                 >
                   <TableCell>
-                    <div className="relative h-12 w-16 overflow-hidden rounded-lg">
-                      <Image
-                        src={attachmentDownloadPath(post.attachmentId)}
-                        alt={post.title}
-                        fill
-                        sizes="64px"
-                        className="object-cover"
-                      />
+                    <div className="relative h-12 w-16 overflow-hidden rounded-lg bg-slate-100">
+                      {post.attachmentId ? (
+                        <Image
+                          src={attachmentDownloadPath(post.attachmentId)}
+                          alt={post.title}
+                          fill
+                          sizes="64px"
+                          className="object-cover"
+                        />
+                      ) : null}
                     </div>
                   </TableCell>
                   <TableCell className="font-semibold text-slate-900 dark:text-white">

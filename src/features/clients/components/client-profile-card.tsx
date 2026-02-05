@@ -59,7 +59,7 @@ export function ClientProfileCard({
       telephone: profile.telephone,
       address: profile.address,
       status: profile.status,
-      attachmentId: profile.attachmentId,
+      attachmentId: profile.attachmentId ?? "",
     });
   }, [formOpen, profile]);
 

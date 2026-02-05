@@ -19,6 +19,7 @@ import {
   Settings,
   Sparkles,
   Stethoscope,
+  X,
   Users,
 } from "lucide-react";
 
@@ -162,7 +163,8 @@ export function AdminShell({ children }: AdminShellProps) {
       ) : null}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-slate-200/80 bg-white pb-6 pt-6 shadow-sm transition-all duration-200 dark:border-slate-800 dark:bg-slate-900 lg:translate-x-0",
+          "fixed left-0 z-40 flex h-[calc(100vh-72px)] flex-col border-r border-slate-200/80 bg-white pb-6 pt-6 shadow-sm transition-all duration-200 dark:border-slate-800 dark:bg-slate-900 lg:top-0 lg:h-screen lg:translate-x-0",
+          isDesktop ? "top-0" : "top-[72px]",
           sidebarOpen || isDesktop ? "translate-x-0" : "-translate-x-full",
           isExpanded ? "lg:w-64 lg:px-4" : "lg:w-20 lg:px-2"
         )}
@@ -171,10 +173,13 @@ export function AdminShell({ children }: AdminShellProps) {
         }}
         onMouseLeave={() => setSidebarHover(false)}
       >
+        <div className="px-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 lg:hidden">
+          Menu
+        </div>
         <Link
           href={homePath()}
           className={cn(
-            "flex items-center gap-3 px-2",
+            "hidden items-center gap-3 px-2 lg:flex",
             isExpanded ? "justify-start" : "justify-center"
           )}
         >
@@ -200,7 +205,7 @@ export function AdminShell({ children }: AdminShellProps) {
         </Link>
 
         {isExpanded ? (
-          <div className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+          <div className="mt-6 hidden text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 lg:block">
             Menu
           </div>
         ) : null}
@@ -358,8 +363,8 @@ export function AdminShell({ children }: AdminShellProps) {
         )}
       >
         <header className="sticky top-0 z-20 border-b border-slate-200 bg-white px-4 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-1 items-center gap-3">
+          <div className="flex items-center justify-between gap-3 lg:gap-4">
+            <div className="flex items-center gap-3">
               <Button
                 type="button"
                 variant="outline"
@@ -374,87 +379,115 @@ export function AdminShell({ children }: AdminShellProps) {
                 }}
                 className="border-slate-200 bg-white shadow-sm hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900"
               >
-                <Menu className="h-4 w-4" aria-hidden />
+                {sidebarOpen && !isDesktop ? (
+                  <X className="h-4 w-4" aria-hidden />
+                ) : (
+                  <Menu className="h-4 w-4" aria-hidden />
+                )}
                 <span className="sr-only">Toggle sidebar</span>
               </Button>
+            </div>
+
+            <div className="flex min-w-0 flex-1 items-center justify-center gap-2 text-center lg:justify-start">
+              <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-slate-100 p-1 shadow-sm dark:bg-slate-800">
+                <Image
+                  src="/assets/Datima-enhance-logo.png"
+                  alt="Datima Admin"
+                  fill
+                  sizes="32px"
+                  className="object-contain"
+                />
+              </div>
+              <span className="truncate text-sm font-semibold uppercase tracking-[0.18em] text-slate-600 dark:text-slate-300 lg:hidden">
+                Datima Admin
+              </span>
               <div className="hidden max-w-[520px] flex-1 md:block">
                 <AdminSearch />
               </div>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
-              <AdminThemeSwitcher />
-              <Button
-                variant="outline"
-                size="icon"
-                className="relative border-slate-200 bg-white hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900"
+              <button
+                type="button"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-lg font-bold leading-none text-slate-700 shadow-sm hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 lg:hidden"
+                aria-label="More options"
               >
-                <Bell className="h-4 w-4" aria-hidden />
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-blue-600" />
-                <span className="sr-only">Notifications</span>
-              </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className="flex items-center gap-2 rounded-full border border-transparent px-2 py-1 text-left transition hover:bg-slate-100 dark:hover:bg-slate-800"
-                  >
-                    <div className="relative h-9 w-9 overflow-hidden rounded-full border border-slate-200 dark:border-slate-700">
-                      <Image
-                        src="/assets/profile-placeholder.svg"
-                        alt="Admin profile"
-                        fill
-                        sizes="36px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="hidden text-sm font-semibold text-slate-900 dark:text-white sm:block">
-                      {user?.username ?? "Admin"}
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-slate-400" aria-hidden />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="w-56 rounded-2xl border-slate-200 bg-white/95 p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900"
+                ...
+              </button>
+              <div className="hidden items-center gap-2 sm:gap-3 lg:flex">
+                <AdminThemeSwitcher />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="relative border-slate-200 bg-white hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900"
                 >
-                  <DropdownMenuLabel className="text-xs text-slate-500 dark:text-slate-400">
-                    {user?.username ?? "Admin"}
-                    <span className="mt-1 block text-sm font-semibold text-slate-900 dark:text-white">
-                      {user?.email ?? "admin@datimaspecialistclinics.com"}
-                    </span>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-800" />
-                  {isHydrated && user ? (
-                    <DropdownMenuItem asChild className="gap-2">
-                      <Link href={adminUserDetailPath(user.id)}>
+                  <Bell className="h-4 w-4" aria-hidden />
+                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-blue-600" />
+                  <span className="sr-only">Notifications</span>
+                </Button>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex items-center gap-2 rounded-full border border-transparent px-2 py-1 text-left transition hover:bg-slate-100 dark:hover:bg-slate-800"
+                    >
+                      <div className="relative h-9 w-9 overflow-hidden rounded-full border border-slate-200 dark:border-slate-700">
+                        <Image
+                          src="/assets/profile-placeholder.svg"
+                          alt="Admin profile"
+                          fill
+                          sizes="36px"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="hidden text-sm font-semibold text-slate-900 dark:text-white sm:block">
+                        Admin
+                      </div>
+                      <ChevronDown className="h-4 w-4 text-slate-400" aria-hidden />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-56 rounded-2xl border-slate-200 bg-white/95 p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900"
+                  >
+                    <DropdownMenuLabel className="text-xs text-slate-500 dark:text-slate-400">
+                      Admin
+                      <span className="mt-1 block text-sm font-semibold text-slate-900 dark:text-white">
+                        admin@datimaspecialistclinics.com
+                      </span>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-800" />
+                    {isHydrated && user ? (
+                      <DropdownMenuItem asChild className="gap-2">
+                        <Link href={adminUserDetailPath(user.id)}>
+                          <Users className="h-4 w-4" aria-hidden />
+                          Edit profile
+                        </Link>
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem className="gap-2" disabled>
                         <Users className="h-4 w-4" aria-hidden />
                         Edit profile
-                      </Link>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem className="gap-2">
+                      <Settings className="h-4 w-4" aria-hidden />
+                      Account settings
                     </DropdownMenuItem>
-                  ) : (
-                    <DropdownMenuItem className="gap-2" disabled>
-                      <Users className="h-4 w-4" aria-hidden />
-                      Edit profile
+                    <DropdownMenuItem className="gap-2">
+                      <MessagesSquare className="h-4 w-4" aria-hidden />
+                      Support
                     </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem className="gap-2">
-                    <Settings className="h-4 w-4" aria-hidden />
-                    Account settings
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="gap-2">
-                    <MessagesSquare className="h-4 w-4" aria-hidden />
-                    Support
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-800" />
-                  <DropdownMenuItem className="gap-2 text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400">
-                    <form action={signOut}>                       
-                    <SubmitButton label="Sign Out" icon={<LogOutIcon />}  />
-                    </form>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-800" />
+                    <DropdownMenuItem className="gap-2 text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400">
+                      <form action={signOut}>
+                        <SubmitButton label="Sign Out" icon={<LogOutIcon />} />
+                      </form>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           </div>
           <div className="mt-3 md:hidden">

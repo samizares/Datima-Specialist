@@ -10,7 +10,7 @@ export type BlogPostDetail = {
   title: string;
   tags: string;
   content: string;
-  attachmentId: string;
+  attachmentId: string | null;
   status: "PUBLISHED" | "SCHEDULED";
   scheduledFor?: Date | null;
 };

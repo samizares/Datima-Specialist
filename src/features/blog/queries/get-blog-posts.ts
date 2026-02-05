@@ -13,8 +13,15 @@ const publishDueScheduledPosts = async () => {
 
   if (!duePosts.length) return;
 
+  const publishable = duePosts.filter(
+    (post): post is typeof post & { attachmentId: string } =>
+      Boolean(post.attachmentId)
+  );
+
+  if (!publishable.length) return;
+
   await prisma.$transaction(
-    duePosts.flatMap((post) => [
+    publishable.flatMap((post) => [
       prisma.blog.create({
         data: {
           title: post.title,

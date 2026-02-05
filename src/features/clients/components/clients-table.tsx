@@ -121,7 +121,7 @@ export function ClientsTable({
         telephone: editing.telephone,
         address: editing.address,
         status: editing.status,
-        attachmentId: editing.attachmentId,
+        attachmentId: editing.attachmentId ?? "",
       });
     } else {
       setFormValues(defaultFormValues);

@@ -33,10 +33,7 @@ export function SiteFooter({ className }: SiteFooterProps) {
               Datima Specialist Clinics
             </span>
           </div>
-          <p className="max-w-md text-sm text-muted-foreground">
-            Patient-centered care, modern diagnostics, and trusted specialists
-            focused on your long-term health.
-          </p>
+          
         </div>
         <div className="flex flex-wrap gap-3 text-sm font-semibold text-foreground">
           {navItems

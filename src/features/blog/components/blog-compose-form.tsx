@@ -138,12 +138,16 @@ export function BlogComposeForm({ author, initialPost }: BlogComposeFormProps) {
       tags: parseTags(initialPost.tags),
       tagInput: "",
       content: initialPost.content,
-      coverAttachmentId: initialPost.attachmentId,
+      coverAttachmentId: initialPost.attachmentId ?? "",
       publishMode: initialPost.status === "SCHEDULED" ? "schedule" : "now",
       scheduleDate,
       scheduleTime,
     });
-    setCoverPreview(attachmentDownloadPath(initialPost.attachmentId));
+    if (initialPost.attachmentId) {
+      setCoverPreview(attachmentDownloadPath(initialPost.attachmentId));
+    } else {
+      setCoverPreview(null);
+    }
   }, [initialPost]);
 
   const handleSubmit = () => {

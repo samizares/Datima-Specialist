@@ -54,7 +54,7 @@ const Header = () => {
     <header
       className={[
         "fixed left-0 right-0 top-0 z-50 w-full border-b border-slate-200/70 bg-white px-2 text-black shadow-sm backdrop-blur-0 transition-transform duration-500 ease-in-out dark:border-slate-800/70 dark:bg-white lg:bg-white/85 lg:px-6 lg:text-foreground lg:backdrop-blur",
-        enableScrollAnimation && !isScrolled ? "-translate-y-6" : "translate-y-0",
+        enableScrollAnimation && !isScrolled ? "translate-y-2 sm:translate-y-0" : "translate-y-0",
       ].join(" ")}
     >
       <div className="mx-auto flex w-full max-w-[1425px] items-center justify-between gap-4 py-4 lg:py-5">
