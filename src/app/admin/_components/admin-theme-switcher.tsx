@@ -3,9 +3,10 @@
 import { Moon, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useAdminTheme } from "./admin-theme-provider";
 
-export function AdminThemeSwitcher() {
+export function AdminThemeSwitcher({ className }: { className?: string }) {
   const { theme, toggleTheme } = useAdminTheme();
 
   return (
@@ -13,7 +14,10 @@ export function AdminThemeSwitcher() {
       variant="outline"
       size="icon"
       onClick={toggleTheme}
-      className="border-slate-200 bg-white/70 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900"
+      className={cn(
+        "border-slate-200 bg-white/70 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900",
+        className
+      )}
     >
       <Sun
         className={[

@@ -38,7 +38,13 @@ import { AdminThemeSwitcher } from "./admin-theme-switcher";
 import { signOut } from "@/features/auth/actions/sign-out";
 import { SubmitButton } from "@/components/form/submit-button";
 import { useAuth } from "@/features/auth/hooks/use-auth";
-import { adminBlogAllPath, adminBlogCreatePath, adminUserDetailPath, homePath } from "@/paths";
+import {
+  adminBlogAllPath,
+  adminBlogCreatePath,
+  adminUserDetailPath,
+  attachmentDownloadPath,
+  homePath,
+} from "@/paths";
 import { saveSidebarOrder } from "@/features/users/actions/sidebar-order";
 
 type AdminShellProps = {
@@ -63,7 +69,7 @@ const navItems = [
 export function AdminShell({ children }: AdminShellProps) {
   const pathname = usePathname();
   const { user } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [sidebarHover, setSidebarHover] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
@@ -72,6 +78,8 @@ export function AdminShell({ children }: AdminShellProps) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [isSaving, startTransition] = useTransition();
   const [isHydrated, setIsHydrated] = useState(false);
+  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   const activePath = useMemo(() => pathname ?? "/admin", [pathname]);
   const isExpanded = !sidebarCollapsed || sidebarHover;
@@ -279,6 +287,9 @@ export function AdminShell({ children }: AdminShellProps) {
                             ? "bg-blue-600/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200"
                             : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800/70"
                         )}
+                        onClick={() => {
+                          if (!isDesktop) setSidebarOpen(false);
+                        }}
                       >
                         All Post
                       </Link>
@@ -290,6 +301,9 @@ export function AdminShell({ children }: AdminShellProps) {
                             ? "bg-blue-600/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200"
                             : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800/70"
                         )}
+                        onClick={() => {
+                          if (!isDesktop) setSidebarOpen(false);
+                        }}
                       >
                         Create Post
                       </Link>
@@ -321,6 +335,9 @@ export function AdminShell({ children }: AdminShellProps) {
                   className={dragClasses}
                   title={!isExpanded ? item.label : undefined}
                   draggable={false}
+                  onClick={() => {
+                    if (!isDesktop) setSidebarOpen(false);
+                  }}
                 >
                   {isExpanded ? (
                     <GripVertical className="h-4 w-4 text-slate-300" aria-hidden />
@@ -411,11 +428,12 @@ export function AdminShell({ children }: AdminShellProps) {
                 type="button"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-lg font-bold leading-none text-slate-700 shadow-sm hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 lg:hidden"
                 aria-label="More options"
+                onClick={() => setMobileActionsOpen((open) => !open)}
               >
                 ...
               </button>
               <div className="hidden items-center gap-2 sm:gap-3 lg:flex">
-                <AdminThemeSwitcher />
+                <AdminThemeSwitcher className="!border-white !bg-white !text-black hover:!bg-white dark:!border-white dark:!bg-white dark:!text-black" />
                 <Button
                   variant="outline"
                   size="icon"
@@ -455,6 +473,120 @@ export function AdminShell({ children }: AdminShellProps) {
                       Admin
                       <span className="mt-1 block text-sm font-semibold text-slate-900 dark:text-white">
                         admin@datimaspecialistclinics.com
+                      </span>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-800" />
+                    {isHydrated && user ? (
+                      <DropdownMenuItem asChild className="gap-2">
+                        <Link href={adminUserDetailPath(user.id)}>
+                          <Users className="h-4 w-4" aria-hidden />
+                          Edit profile
+                        </Link>
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem className="gap-2" disabled>
+                        <Users className="h-4 w-4" aria-hidden />
+                        Edit profile
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem className="gap-2">
+                      <Settings className="h-4 w-4" aria-hidden />
+                      Account settings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="gap-2">
+                      <MessagesSquare className="h-4 w-4" aria-hidden />
+                      Support
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-800" />
+                    <DropdownMenuItem className="gap-2 text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400">
+                      <form action={signOut}>
+                        <SubmitButton label="Sign Out" icon={<LogOutIcon />} />
+                      </form>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </div>
+          <div
+            className={cn(
+              "mt-3 overflow-hidden transition-all duration-300 ease-in-out lg:hidden",
+              mobileActionsOpen ? "max-h-24 opacity-100" : "max-h-0 opacity-0"
+            )}
+          >
+            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-3 py-2 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-center gap-2">
+                <AdminThemeSwitcher />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="relative border-slate-200 bg-white hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900"
+                    >
+                      <Bell className="h-4 w-4" aria-hidden />
+                      <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-blue-600" />
+                      <span className="sr-only">Notifications</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="start"
+                    className="w-56 rounded-2xl border-slate-200 bg-white/95 p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900"
+                  >
+                    <DropdownMenuLabel className="text-xs text-slate-500 dark:text-slate-400">
+                      Notifications
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-800" />
+                    <div className="px-2 py-3 text-xs text-slate-500 dark:text-slate-400">
+                      No new notifications.
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <div className="flex items-center gap-2">
+                <DropdownMenu open={profileMenuOpen} onOpenChange={setProfileMenuOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
+                      aria-label="Open profile menu"
+                    >
+                      <Image
+                        src={
+                          user?.attachmentId
+                            ? attachmentDownloadPath(user.attachmentId)
+                            : "/assets/profile-placeholder.svg"
+                        }
+                        alt="Admin profile"
+                        width={36}
+                        height={36}
+                        className="h-9 w-9 object-cover"
+                      />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <button
+                    type="button"
+                    onClick={() => setProfileMenuOpen((open) => !open)}
+                    className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+                    aria-expanded={profileMenuOpen}
+                  >
+                    {user?.username ?? "Admin"}
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 text-slate-400 transition-transform",
+                        profileMenuOpen ? "rotate-180" : "rotate-0"
+                      )}
+                      aria-hidden
+                    />
+                  </button>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-56 rounded-2xl border-slate-200 bg-white/95 p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900"
+                  >
+                    <DropdownMenuLabel className="text-xs text-slate-500 dark:text-slate-400">
+                      {user?.username ?? "Admin"}
+                      <span className="mt-1 block text-sm font-semibold text-slate-900 dark:text-white">
+                        {user?.email ?? "admin@datimaspecialistclinics.com"}
                       </span>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-800" />
