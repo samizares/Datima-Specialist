@@ -1,6 +1,6 @@
 import ContactConfirmation from "@/emails/messages/contact-confirmation";
 import { resend } from "@/lib/resend";
-import { getBaseUrl } from "@/utils/url";
+const PUBLIC_BASE_URL = "https://datimaspecialistclinics.com";
 
 type ContactConfirmationInput = {
   toName: string;
@@ -15,7 +15,6 @@ export const sendContactConfirmation = async ({
   subject,
   message,
 }: ContactConfirmationInput) => {
-  const baseUrl = getBaseUrl();
   return resend.emails.send({
     from: "no-reply@care.datimaspecialistclinics.com",
     to: email,
@@ -23,7 +22,7 @@ export const sendContactConfirmation = async ({
     react: (
       <ContactConfirmation
         toName={toName}
-        logoUrl={`${baseUrl}/assets/Datima-enhance-logo.png`}
+        logoUrl={`${PUBLIC_BASE_URL}/assets/Datima-enhance-logo.png`}
         slogan="Patient-first, evidence-based care"
         subject={subject}
         message={message}

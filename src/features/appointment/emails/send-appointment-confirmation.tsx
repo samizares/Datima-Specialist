@@ -1,6 +1,6 @@
 import AppointmentConfirmation from "@/emails/appointments/appointment-confirmation";
 import { resend } from "@/lib/resend";
-import { getBaseUrl } from "@/utils/url";
+const PUBLIC_BASE_URL = "https://datimaspecialistclinics.com";
 
 type AppointmentConfirmationInput = {
   toName: string;
@@ -21,7 +21,6 @@ export const sendAppointmentConfirmation = async ({
   time,
   appointmentId,
 }: AppointmentConfirmationInput) => {
-  const baseUrl = getBaseUrl();
   return resend.emails.send({
     from: "no-reply@care.datimaspecialistclinics.com",
     to: email,
@@ -29,7 +28,7 @@ export const sendAppointmentConfirmation = async ({
     react: (
       <AppointmentConfirmation
         toName={toName}
-        logoUrl={`${baseUrl}/assets/Datima-enhance-logo.png`}
+        logoUrl={`${PUBLIC_BASE_URL}/assets/Datima-enhance-logo.png`}
         slogan="Patient-first, evidence-based care"
         clinic={clinic}
         doctor={doctor}
