@@ -7,7 +7,8 @@ import {
   toActionState,
 } from "@/components/form/utils/to-action-state";
 import { prisma } from "@/lib/prisma";
-import { resend } from "@/lib/resend";
+import { sendAppointmentConfirmation } from "@/features/appointment/emails/send-appointment-confirmation";
+import { sendAppointmentSupport } from "@/features/appointment/emails/send-appointment-support";
 
 const appointmentSchema = z
   .object({
@@ -31,8 +32,6 @@ const appointmentSchema = z
       });
     }
   });
-
-const SUPPORT_EMAIL = "samizares@hotmail.com";
 
 export const bookAppointment = async (
   _actionState: ActionState,
@@ -114,21 +113,28 @@ export const bookAppointment = async (
       ? `${appointment.doctor.firstName} ${appointment.doctor.lastName}`
       : "No preference";
 
-    await resend.emails.send({
-      from: "no-reply@care.datimaspecialistclinics.com",
-      to: SUPPORT_EMAIL,
-      subject: "New appointment booked",
-      text: [
-        `Client: ${client.firstName} ${client.lastName}`,
-        `Email: ${data.email}`,
-        `Telephone: ${client.telephone}`,
-        `Address: ${client.address}`,
-        `Clinic: ${appointment.clinic.name}`,
-        `Doctor: ${doctorName}`,
-        `Appointment date: ${appointment.setDay.toDateString()}`,
-        `Appointment time: ${appointment.setTime}`,
-        `Appointment ID: ${appointment.id}`,
-      ].join("\n"),
+    const appointmentDate = appointment.setDay.toDateString();
+
+    await sendAppointmentSupport({
+      clientName: `${client.firstName} ${client.lastName}`,
+      email: data.email,
+      telephone: client.telephone,
+      address: client.address,
+      clinic: appointment.clinic.name,
+      doctor: doctorName,
+      date: appointmentDate,
+      time: appointment.setTime,
+      appointmentId: appointment.id,
+    });
+
+    await sendAppointmentConfirmation({
+      toName: `${firstName} ${lastName}`,
+      email: data.email,
+      clinic: appointment.clinic.name,
+      doctor: doctorName,
+      date: appointmentDate,
+      time: appointment.setTime,
+      appointmentId: appointment.id,
     });
   } catch (error) {
     return fromErrorToActionState(error, formData);

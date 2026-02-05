@@ -406,7 +406,7 @@ export function AdminShell({ children }: AdminShellProps) {
             </div>
 
             <div className="flex min-w-0 flex-1 items-center justify-center gap-2 text-center lg:justify-start">
-              <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-slate-100 p-1 shadow-sm dark:bg-slate-800">
+              <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-slate-100 p-1 shadow-sm dark:bg-slate-800 lg:hidden">
                 <Image
                   src="/assets/Datima-enhance-logo.png"
                   alt="Datima Admin"

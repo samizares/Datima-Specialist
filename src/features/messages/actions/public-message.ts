@@ -7,7 +7,8 @@ import {
   toActionState,
 } from "@/components/form/utils/to-action-state";
 import { prisma } from "@/lib/prisma";
-import { resend } from "@/lib/resend";
+import { sendContactConfirmation } from "@/features/messages/emails/send-contact-confirmation";
+import { sendContactSupport } from "@/features/messages/emails/send-contact-support";
 
 const messageSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -61,19 +62,21 @@ export const submitPublicMessage = async (
       },
     });
 
-    await resend.emails.send({
-      from: "no-reply@care.datimaspecialistclinics.com",
-      to: "samizares@hotmail.com",
-      subject: `New support message: ${data.subject}`,
-      text: [
-        `From: ${client.firstName} ${client.lastName}`,
-        `Email: ${data.email}`,
-        `Phone: ${data.phone}`,
-        `Client ID: ${client.id}`,
-        `Message ID: ${message.id}`,
-        "",
-        data.message,
-      ].join("\n"),
+    await sendContactSupport({
+      clientName: `${client.firstName} ${client.lastName}`,
+      email: data.email,
+      phone: data.phone,
+      subject: data.subject,
+      message: data.message,
+      clientId: client.id,
+      messageId: message.id,
+    });
+
+    await sendContactConfirmation({
+      toName: `${client.firstName} ${client.lastName}`,
+      email: data.email,
+      subject: data.subject,
+      message: data.message,
     });
   } catch (error) {
     return fromErrorToActionState(error, formData);
