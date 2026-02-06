@@ -23,7 +23,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
-import Image from "next/image";
 import { adminBlogCreatePath, attachmentDownloadPath } from "@/paths";
 import { deleteBlog } from "../actions/blogs";
 import { getBlogPosts } from "../queries/get-blog-posts";
@@ -171,16 +170,18 @@ export function BlogPostsTable({
                   className="border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-950"
                 >
                   <TableCell>
-                    <div className="relative h-12 w-16 overflow-hidden rounded-lg bg-slate-100">
-                      {post.attachmentId ? (
-                        <Image
-                          src={attachmentDownloadPath(post.attachmentId)}
-                          alt={post.title}
-                          fill
-                          sizes="64px"
-                          className="object-cover"
-                        />
-                      ) : null}
+                    <div className="h-12 w-16 overflow-hidden rounded-lg bg-slate-100">
+                      <img
+                        src={
+                          post.attachmentId
+                            ? attachmentDownloadPath(post.attachmentId)
+                            : "/assets/profile-placeholder.svg"
+                        }
+                        alt={post.title}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </div>
                   </TableCell>
                   <TableCell className="font-semibold text-slate-900 dark:text-white">

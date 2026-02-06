@@ -31,7 +31,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Image from "next/image";
 import { adminUserDetailPath, attachmentDownloadPath } from "@/paths";
 import { UserFormFields } from "./user-form-fields";
 import { createUser, deleteUser, updateUser } from "../actions/users";
@@ -246,19 +245,19 @@ export function UsersTable({
                   className="border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-950"
                 >
                   <TableCell>
-                    {user.attachmentId ? (
-                      <div className="relative h-10 w-14 overflow-hidden rounded-lg">
-                        <Image
-                          src={attachmentDownloadPath(user.attachmentId)}
-                          alt={user.username}
-                          fill
-                          sizes="56px"
-                          className="object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <span className="text-sm text-slate-400">—</span>
-                    )}
+                        <div className="h-10 w-14 overflow-hidden rounded-lg bg-slate-100">
+                          <img
+                            src={
+                              user.attachmentId
+                                ? attachmentDownloadPath(user.attachmentId)
+                                : "/assets/profile-placeholder.svg"
+                            }
+                            alt={user.username}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </div>
                   </TableCell>
                   <TableCell className="font-semibold text-slate-900 dark:text-white">
                     <Link

@@ -262,19 +262,19 @@ export function ClinicsTable({
                     {clinic.desc}
                   </TableCell>
                   <TableCell>
-                    {clinic.attachmentId ? (
-                      <div className="relative h-10 w-14 overflow-hidden rounded-lg">
-                        <Image
-                          src={attachmentDownloadPath(clinic.attachmentId)}
-                          alt={clinic.name}
-                          fill
-                          sizes="56px"
-                          className="object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <span className="text-sm text-slate-400">—</span>
-                    )}
+                    <div className="h-10 w-14 overflow-hidden rounded-lg bg-slate-100">
+                      <img
+                        src={
+                          clinic.attachmentId
+                            ? attachmentDownloadPath(clinic.attachmentId)
+                            : "/assets/profile-placeholder.svg"
+                        }
+                        alt={clinic.name}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">

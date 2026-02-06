@@ -37,6 +37,7 @@ import {
 import { ClientFormFields, type ClientFormValues } from "./client-form-fields";
 import { getClients } from "../queries/get-clients";
 import Link from "next/link";
+import { attachmentDownloadPath } from "@/paths";
 
 type ClientRecord = Awaited<ReturnType<typeof getClients>>[number];
 
@@ -210,6 +211,7 @@ export function ClientsTable({
         <Table>
           <TableHeader className="bg-white text-xs font-semibold uppercase tracking-[0.12em] text-slate-400 dark:bg-slate-900 dark:text-slate-500">
             <TableRow className="border-slate-200/70 dark:border-slate-800">
+              <TableHead>Avatar</TableHead>
               <TableHead>Client</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Telephone</TableHead>
@@ -225,6 +227,21 @@ export function ClientsTable({
                   key={client.id}
                   className="border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-950"
                 >
+                  <TableCell>
+                    <div className="h-10 w-10 overflow-hidden rounded-full bg-slate-100">
+                      <img
+                        src={
+                          client.attachmentId
+                            ? attachmentDownloadPath(client.attachmentId)
+                            : "/assets/profile-placeholder.svg"
+                        }
+                        alt={`${client.firstName} ${client.lastName}`}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  </TableCell>
                   <TableCell className="font-semibold text-slate-900 dark:text-white">
                     <Link
                       href={`/admin/clients/${client.id}`}
@@ -269,7 +286,7 @@ export function ClientsTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-sm text-slate-500">
+                <TableCell colSpan={7} className="py-10 text-center text-sm text-slate-500">
                   No clients found.
                 </TableCell>
               </TableRow>

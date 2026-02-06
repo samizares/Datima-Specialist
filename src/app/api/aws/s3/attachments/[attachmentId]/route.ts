@@ -3,15 +3,12 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { NextRequest } from "next/server";
 import * as attachmentData from "@/features/attachment/data";
 import { generateS3Key } from "@/features/attachment/utils/generate-s3-key";
-import { getAuthOrRedirect } from "@/features/auth/queries/get-auth-or-redirect";
 import { s3 } from "@/lib/aws";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ attachmentId: string }> }
 ) {
-  await getAuthOrRedirect();
-
   const { attachmentId } = await params;
 
   const attachment = await attachmentData.getAttachment(attachmentId);
@@ -36,9 +33,13 @@ export async function GET(
   const response = await fetch(presignedUrl);
 
   const headers = new Headers();
-  headers.append(
+  const contentType = response.headers.get("content-type");
+  if (contentType) {
+    headers.set("content-type", contentType);
+  }
+  headers.set(
     "content-disposition",
-    `attachment; filename="${attachment.name}"`
+    `inline; filename="${attachment.name}"`
   );
 
   return new Response(response.body, {

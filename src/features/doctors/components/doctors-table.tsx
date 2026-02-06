@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition, type FormEvent } from "react";
-import Image from "next/image";
 import { Pencil, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -240,19 +239,19 @@ export function DoctorsTable({
                   className="border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-950"
                 >
                   <TableCell>
-                    {doctor.attachmentId ? (
-                      <div className="relative h-10 w-14 overflow-hidden rounded-lg">
-                        <Image
-                          src={attachmentDownloadPath(doctor.attachmentId)}
-                          alt={`${doctor.firstName} ${doctor.lastName}`}
-                          fill
-                          sizes="56px"
-                          className="object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <span className="text-sm text-slate-400">—</span>
-                    )}
+                        <div className="h-10 w-14 overflow-hidden rounded-lg bg-slate-100">
+                          <img
+                            src={
+                              doctor.attachmentId
+                                ? attachmentDownloadPath(doctor.attachmentId)
+                                : "/assets/profile-placeholder.svg"
+                            }
+                            alt={`${doctor.firstName} ${doctor.lastName}`}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </div>
                   </TableCell>
                   <TableCell className="font-semibold text-slate-900 dark:text-white">
                     <Link
