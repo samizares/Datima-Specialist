@@ -6,7 +6,7 @@ export const getAttachments = async (
 ) => {
   return await prisma.attachment.findMany({
     where: {
-      attachmentTpe: attachmentType,
+      attachmentType,
     },
   });
 };

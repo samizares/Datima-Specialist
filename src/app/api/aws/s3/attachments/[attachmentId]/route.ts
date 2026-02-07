@@ -22,7 +22,7 @@ export async function GET(
     new GetObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: generateS3Key({
-        attachmentType: attachment.attachmentTpe,
+        attachmentType: attachment.attachmentType,
         fileName: attachment.name,
         attachmentId: attachment.id,
       }),

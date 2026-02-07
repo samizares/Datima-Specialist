@@ -185,7 +185,7 @@ async function main() {
         create: {
           id,
           name: `Attachment ${i + 1}`,
-          attachmentTpe: i === 1 ? "ADMIN" : i === 3 ? "DOCTOR" : "CLIENT",
+          attachmentType: i === 1 ? "ADMIN" : i === 3 ? "DOCTOR" : "CLIENT",
           createdAt: now,
           updatedAt: now,
         },
@@ -203,7 +203,7 @@ async function main() {
         create: {
           id,
           name: imageName,
-          attachmentTpe: "BLOG",
+          attachmentType: "BLOG",
         },
       });
     })

@@ -31,7 +31,7 @@ export const deleteAttachment = async (id: string) => {
       new DeleteObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: generateS3Key({
-          attachmentType: attachment.attachmentTpe,
+        attachmentType: attachment.attachmentType,
           fileName: attachment.name,
           attachmentId: attachment.id,
         }),

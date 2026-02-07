@@ -121,7 +121,7 @@ export function ClientProfileCard({
             />
           </div>
           <div className="flex-1">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+            <h2 className="inline-flex w-fit rounded-lg bg-blue-600 px-3 py-2 text-xl font-semibold text-white">
               {profile.firstName} {profile.lastName}
             </h2>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -195,7 +195,7 @@ export function ClientProfileCard({
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-xl rounded-3xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-white">
+            <DialogTitle className="inline-flex w-fit rounded-lg bg-blue-600 px-3 py-2 text-xl font-semibold text-white">
               Edit client
             </DialogTitle>
           </DialogHeader>

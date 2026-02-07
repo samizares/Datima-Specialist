@@ -13,7 +13,7 @@ export const createAttachment = async ({
   return await prisma.attachment.create({
     data: {
       name,
-      attachmentTpe: attachmentType,
+      attachmentType,
     },
   });
 };

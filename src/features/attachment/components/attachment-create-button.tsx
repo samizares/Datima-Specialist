@@ -45,7 +45,9 @@ const AttachmentCreateButton = ({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Upload File(s)</DialogTitle>
+          <DialogTitle className="inline-flex w-fit rounded-lg bg-blue-600 px-3 py-2 text-xl font-semibold text-white">
+            Upload File(s)
+          </DialogTitle>
           <DialogDescription>Attach images or PDFs</DialogDescription>
         </DialogHeader>
         <AttachmentCreateForm

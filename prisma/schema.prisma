@@ -100,7 +100,7 @@ model Attachment {
   createdAt 		    DateTime     @default(now())
   updatedAt 		    DateTime     @updatedAt
   name 		          String
-  attachmentTpe    	AttachmentType
+  attachmentType     AttachmentType
   blog              Blog?        @relation("BlogAttachment")
   schedulePost      SchedulePost? @relation("SchedulePostAttachment")
   clinic            Clinic?      @relation("ClinicAttachment")
@@ -117,6 +117,7 @@ enum AttachmentType {
   CLINIC
   USER
   SCHEDULE_POST
+  INVOICE
 }
 
 model Blog {

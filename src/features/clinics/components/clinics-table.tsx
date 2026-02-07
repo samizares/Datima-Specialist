@@ -312,7 +312,7 @@ export function ClinicsTable({
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-xl rounded-3xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-white">
+            <DialogTitle className="inline-flex w-fit rounded-lg bg-blue-600 px-3 py-2 text-xl font-semibold text-white">
               {editing ? "Edit clinic" : "Add clinic"}
             </DialogTitle>
           </DialogHeader>
@@ -330,13 +330,14 @@ export function ClinicsTable({
             </div>
             <div className="grid gap-2">
               <Label htmlFor="desc">Description</Label>
-              <Input
+              <textarea
                 id="desc"
                 value={formValues.desc}
                 onChange={(event) =>
                   setFormValues((prev) => ({ ...prev, desc: event.target.value }))
                 }
                 required
+                className="min-h-[120px] rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
               />
             </div>
             <div className="grid gap-2">

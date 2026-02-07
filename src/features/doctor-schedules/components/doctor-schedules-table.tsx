@@ -291,7 +291,7 @@ export function DoctorSchedulesTable({
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-xl rounded-3xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-white">
+            <DialogTitle className="inline-flex w-fit rounded-lg bg-blue-600 px-3 py-2 text-xl font-semibold text-white">
               {editing ? "Edit schedule" : "Add schedule"}
             </DialogTitle>
           </DialogHeader>
