@@ -298,14 +298,19 @@ export function TestimonialsTable({
             </div>
             <div className="grid gap-2">
               <Label htmlFor="content">Testimonial</Label>
-              <Input
+              <textarea
                 id="content"
                 value={formValues.content}
                 onChange={(event) =>
                   setFormValues((prev) => ({ ...prev, content: event.target.value }))
                 }
                 required
+                maxLength={300}
+                className="min-h-[140px] rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
               />
+              <p className="text-xs text-slate-400">
+                {formValues.content.length}/300
+              </p>
             </div>
             <DialogFooter className="gap-2">
               <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>

@@ -18,11 +18,21 @@ export async function getDoctor(doctorId: string) {
       firstName: true,
       lastName: true,
       email: true,
-      clinicId: true,
       attachmentId: true,
       createdAt: true,
-      clinic: {
-        select: { name: true },
+      clinics: {
+        select: {
+          clinicId: true,
+          date: true,
+          startShift: true,
+          endShift: true,
+          clinic: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
       },
     },
   });

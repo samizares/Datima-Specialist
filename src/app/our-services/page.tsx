@@ -17,7 +17,18 @@ const badgeStyles = () =>
 
 export default async function OurServicesPage() {
   const clinics = await prisma.clinic.findMany({
-    select: { id: true, name: true },
+    where: { operatingTimes: { some: {} } },
+    select: {
+      id: true,
+      name: true,
+      operatingTimes: {
+        select: {
+          openDay: true,
+          startTime: true,
+          endTime: true,
+        },
+      },
+    },
     orderBy: { name: "asc" },
   });
 

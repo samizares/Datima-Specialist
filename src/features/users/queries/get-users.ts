@@ -17,6 +17,7 @@ export async function getUsers() {
     select: {
       id: true,
       username: true,
+      fullName: true,
       email: true,
       emailVerified: true,
       isAdmin: true,

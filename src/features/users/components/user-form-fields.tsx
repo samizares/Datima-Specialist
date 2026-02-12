@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type Dispatch,
+  type PointerEvent,
+  type SetStateAction,
+} from "react";
 import Image from "next/image";
 import { AttachmentType } from "@prisma/client";
 import { toast } from "sonner";
@@ -20,11 +28,11 @@ import { attachmentDownloadPath } from "@/paths";
 
 type UserFormValues = {
   username: string;
+  fullName: string;
   email: string;
   password: string;
   emailVerified: string;
-  isAdmin: string;
-  isSuperAdmin: string;
+  role: string;
   attachmentId: string;
 };
 
@@ -42,8 +50,17 @@ export function UserFormFields({
   onChange,
 }: UserFormFieldsProps) {
   const uploadRef = useRef<HTMLInputElement | null>(null);
+  const previewRef = useRef<HTMLDivElement | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [position, setPosition] = useState({ x: 50, y: 50 });
   const [isUploading, setUploading] = useState(false);
+  const [isDragging, setDragging] = useState(false);
+  const dragState = useRef<{
+    startX: number;
+    startY: number;
+    startPosX: number;
+    startPosY: number;
+  } | null>(null);
 
   useEffect(() => {
     if (values.attachmentId) {
@@ -51,6 +68,7 @@ export function UserFormFields({
     } else {
       setPreview(null);
     }
+    setPosition({ x: 50, y: 50 });
   }, [values.attachmentId]);
 
   const handleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -74,6 +92,41 @@ export function UserFormFields({
     setUploading(false);
   };
 
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (!previewRef.current) return;
+    previewRef.current.setPointerCapture(event.pointerId);
+    setDragging(true);
+    dragState.current = {
+      startX: event.clientX,
+      startY: event.clientY,
+      startPosX: position.x,
+      startPosY: position.y,
+    };
+  };
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!previewRef.current || !dragState.current) return;
+    const rect = previewRef.current.getBoundingClientRect();
+    const deltaX = event.clientX - dragState.current.startX;
+    const deltaY = event.clientY - dragState.current.startY;
+    const nextX = Math.min(
+      100,
+      Math.max(0, dragState.current.startPosX + (deltaX / rect.width) * 100)
+    );
+    const nextY = Math.min(
+      100,
+      Math.max(0, dragState.current.startPosY + (deltaY / rect.height) * 100)
+    );
+    setPosition({ x: nextX, y: nextY });
+  };
+
+  const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    if (!previewRef.current) return;
+    previewRef.current.releasePointerCapture(event.pointerId);
+    dragState.current = null;
+    setDragging(false);
+  };
+
   return (
     <>
       <div className="grid gap-2">
@@ -83,6 +136,17 @@ export function UserFormFields({
           value={values.username}
           onChange={(event) =>
             onChange({ ...values, username: event.target.value })
+          }
+          required
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="fullName">Full name</Label>
+        <Input
+          id="fullName"
+          value={values.fullName}
+          onChange={(event) =>
+            onChange({ ...values, fullName: event.target.value })
           }
           required
         />
@@ -129,34 +193,20 @@ export function UserFormFields({
         </Select>
       </div>
       <div className="grid gap-2">
-        <Label>Admin role</Label>
+        <Label>User role</Label>
         <Select
-          value={values.isAdmin}
-          onValueChange={(value) => onChange({ ...values, isAdmin: value })}
+          value={values.role}
+          onValueChange={(value) => onChange({ ...values, role: value })}
           disabled={!canAssignRoles}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="true">Admin</SelectItem>
-            <SelectItem value="false">Standard</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="grid gap-2">
-        <Label>Super admin</Label>
-        <Select
-          value={values.isSuperAdmin}
-          onValueChange={(value) => onChange({ ...values, isSuperAdmin: value })}
-          disabled={!canAssignRoles}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="true">Super admin</SelectItem>
-            <SelectItem value="false">Standard</SelectItem>
+            <SelectItem value="none">None</SelectItem>
+            <SelectItem value="admin">Admin User</SelectItem>
+            <SelectItem value="super">Super Admin</SelectItem>
+            <SelectItem value="both">Both</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -165,15 +215,28 @@ export function UserFormFields({
         <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-950">
           {preview ? (
             <div className="space-y-3">
-              <div className="relative h-36 w-full overflow-hidden rounded-xl border border-slate-200">
+              <div
+                ref={previewRef}
+                className="relative h-[300px] w-full touch-none overflow-hidden rounded-xl border border-slate-200"
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+              >
                 <Image
                   src={preview}
                   alt="User preview"
                   fill
                   sizes="480px"
-                  className="object-cover"
+                  quality={100}
+                  className={`object-cover select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+                  style={{ objectPosition: `${position.x}% ${position.y}%` }}
+                  draggable={false}
                 />
               </div>
+              <span className="block text-xs text-slate-500">
+                Drag the image to adjust its positioning.
+              </span>
               <Button
                 type="button"
                 variant="outline"

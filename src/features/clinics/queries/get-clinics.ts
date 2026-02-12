@@ -19,6 +19,30 @@ export async function getClinics() {
       name: true,
       desc: true,
       attachmentId: true,
+      doctors: {
+        select: {
+          clinicId: true,
+          doctorId: true,
+          date: true,
+          startShift: true,
+          endShift: true,
+          doctor: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      },
+      operatingTimes: {
+        select: {
+          id: true,
+          openDay: true,
+          startTime: true,
+          endTime: true,
+        },
+      },
     },
   });
 }

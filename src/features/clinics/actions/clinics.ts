@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { OperatingDay } from "@prisma/client";
 
 import {
   ActionState,
@@ -12,19 +13,60 @@ import { getAuthOrRedirect } from "@/features/auth/queries/get-auth-or-redirect"
 import { isAdmin } from "@/features/auth/utils/is-admin";
 import { isSuperAdmin } from "@/features/auth/utils/is-super-admin";
 import { prisma } from "@/lib/prisma";
+import { timeStringToMinutes } from "@/lib/time";
 import { adminClinicsPath } from "@/paths";
 
 export type ClinicInput = {
   name: string;
   desc: string;
   attachmentId?: string | null;
+  operatingTimes?: {
+    openDay: OperatingDay;
+    startTime: string;
+    endTime: string;
+  }[];
 };
+
+const attachmentIdSchema = z
+  .union([z.string().trim().min(1), z.literal(""), z.null(), z.undefined()])
+  .transform((value) =>
+    typeof value === "string" && value.length > 0 ? value : null
+  );
+
+const operatingTimeSchema = z
+  .object({
+    openDay: z.nativeEnum(OperatingDay),
+    startTime: z.string().min(1, "Start time is required"),
+    endTime: z.string().min(1, "End time is required"),
+  })
+  .superRefine((value, ctx) => {
+    const start = timeStringToMinutes(value.startTime);
+    const end = timeStringToMinutes(value.endTime);
+    if (start === null || end === null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Time format is invalid",
+      });
+      return;
+    }
+    if (start >= end) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "End time must be after start time",
+        path: ["endTime"],
+      });
+    }
+  });
+
+const operatingTimesSchema = z.array(operatingTimeSchema).optional().default([]);
 
 const clinicSchema = z.object({
   name: z.string().min(1, "Clinic name is required"),
   desc: z.string().min(1, "Description is required"),
-  attachmentId: z.string().optional().nullable(),
+  attachmentId: attachmentIdSchema,
+  operatingTimes: operatingTimesSchema,
 });
+
 
 const ensureAdminAccess = (user: Awaited<ReturnType<typeof getAuthOrRedirect>>["user"]) => {
   if (!isAdmin(user) && !isSuperAdmin(user)) {
@@ -40,7 +82,19 @@ export async function createClinic(input: ClinicInput): Promise<ActionState> {
     if (denied) return denied;
 
     const data = clinicSchema.parse(input);
-    const clinic = await prisma.clinic.create({ data });
+    const { operatingTimes, ...clinicData } = data;
+    const clinic = await prisma.clinic.create({ data: clinicData });
+
+    if (operatingTimes.length) {
+      await prisma.operatingTime.createMany({
+        data: operatingTimes.map((time) => ({
+          clinicId: clinic.id,
+          openDay: time.openDay,
+          startTime: time.startTime,
+          endTime: time.endTime,
+        })),
+      });
+    }
     revalidatePath(adminClinicsPath());
     return toActionState("SUCCESS", "Clinic added", undefined, clinic);
   } catch (error) {
@@ -58,7 +112,23 @@ export async function updateClinic(
     if (denied) return denied;
 
     const data = clinicSchema.parse(input);
-    const clinic = await prisma.clinic.update({ where: { id }, data });
+    const { operatingTimes, ...clinicData } = data;
+    const clinic = await prisma.clinic.update({
+      where: { id },
+      data: clinicData,
+    });
+
+    await prisma.operatingTime.deleteMany({ where: { clinicId: id } });
+    if (operatingTimes.length) {
+      await prisma.operatingTime.createMany({
+        data: operatingTimes.map((time) => ({
+          clinicId: id,
+          openDay: time.openDay,
+          startTime: time.startTime,
+          endTime: time.endTime,
+        })),
+      });
+    }
     revalidatePath(adminClinicsPath());
     return toActionState("SUCCESS", "Clinic updated", undefined, clinic);
   } catch (error) {

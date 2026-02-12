@@ -2,8 +2,12 @@ import Image from "next/image";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { StaticPageHero } from "@/components/static-page-hero";
+import { getAuth } from "@/features/auth/queries/get-auth";
 
-export default function WaitingPage() {
+export default async function WaitingPage() {
+  const { user } = await getAuth();
+  const displayName = user?.fullName || user?.username || "there";
+
   return (
     <main className="bg-background">
       <section id="waiting-hero">
@@ -22,8 +26,11 @@ export default function WaitingPage() {
                 priority
               />
             </div>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-black">
+              Hi {displayName}, welcome to Datima!!!
+            </h2>
             <p className="text-lg text-muted-foreground dark:text-black">
-              Thanks for verifying your email but you still need Admin access which will be granted very soon. You will be notified to sign in again. Thanks for your patience!!!
+              Thanks for verifying your email but you still need Admin access. You will be notified to sign in again. Thanks for your patience!!!
             </p>
           </CardContent>
         </Card>

@@ -16,6 +16,7 @@ export async function getUser(userId: string) {
     select: {
       id: true,
       username: true,
+      fullName: true,
       email: true,
       emailVerified: true,
       isAdmin: true,

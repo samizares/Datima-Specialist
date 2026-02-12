@@ -20,7 +20,17 @@ export default async function AdminAppointmentsPage() {
     }),
     prisma.clinic.findMany({
       orderBy: { name: "asc" },
-      select: { id: true, name: true },
+      select: {
+        id: true,
+        name: true,
+        operatingTimes: {
+          select: {
+            openDay: true,
+            startTime: true,
+            endTime: true,
+          },
+        },
+      },
     }),
     prisma.doctor.findMany({
       orderBy: { lastName: "asc" },

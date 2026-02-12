@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import {
   addDays,
+  addHours,
   addMonths,
   addWeeks,
   endOfMonth,
@@ -15,10 +16,11 @@ import {
   subMonths,
   subWeeks,
 } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +28,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -35,7 +36,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import {
+  getOperatingDayFromDate,
+  getOperatingDayLabel,
+  operatingDayOptions,
+  type OperatingDayValue,
+} from "@/lib/operating-days";
+import {
+  buildTimeOptions,
+  formatLocalDateKey,
+  parseLocalDateKey,
+  timeStringToMinutes,
+} from "@/lib/time";
 import {
   createAppointment,
   deleteAppointment,
@@ -53,6 +71,11 @@ type ClientOption = {
 type ClinicOption = {
   id: string;
   name: string;
+  operatingTimes: {
+    openDay: OperatingDayValue;
+    startTime: string;
+    endTime: string;
+  }[];
 };
 
 type DoctorOption = {
@@ -78,16 +101,23 @@ type AdminCalendarProps = {
 const hours = Array.from({ length: 10 }, (_, index) => 8 + index);
 
 const statusOptions = [
-  { value: "UNFILL", label: "Unfilled" },
-  { value: "FILL", label: "Filled" },
-  { value: "DONE", label: "Completed" },
+  { value: "BOOKED", label: "Booked" },
+  { value: "CONFIRMED", label: "Confirmed" },
+  { value: "ARRIVED", label: "Arrived" },
+  { value: "InPROGRESS", label: "In progress" },
+  { value: "FULFILLED", label: "Fulfilled" },
+  { value: "CANCELLED", label: "Cancelled" },
+  { value: "MISSED", label: "Missed" },
 ];
 
 const formatDateValue = (value?: Date | string | null) => {
   if (!value) return "";
   const date = typeof value === "string" ? new Date(value) : value;
-  return format(date, "yyyy-MM-dd");
+  if (Number.isNaN(date.getTime())) return "";
+  return formatLocalDateKey(date);
 };
+
+const getMinTimeMinutes = (date: Date) => date.getHours() * 60 + date.getMinutes();
 
 export function AdminCalendar({
   clients,
@@ -102,6 +132,7 @@ export function AdminCalendar({
   const [appointments, setAppointments] = useState<AppointmentRecord[]>([]);
   const [listOpen, setListOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
+  const [dateOpen, setDateOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [editing, setEditing] = useState<AppointmentRecord | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -109,9 +140,10 @@ export function AdminCalendar({
     clientId: "",
     clinicId: "",
     doctorId: "",
+    openDay: "" as OperatingDayValue | "",
     setDay: "",
     setTime: "",
-    status: "UNFILL",
+    status: "BOOKED",
   });
 
   const dateLabel = useMemo(() => {
@@ -216,14 +248,119 @@ export function AdminCalendar({
     setFormOpen(true);
   };
 
+  const minDateTime = useMemo(() => addHours(new Date(), 24), []);
+  const minDateKey = useMemo(
+    () => formatLocalDateKey(minDateTime),
+    [minDateTime]
+  );
+  const minTimeMinutes = useMemo(
+    () => getMinTimeMinutes(minDateTime),
+    [minDateTime]
+  );
+
+  const selectedClinic = useMemo(
+    () => clinics.find((clinic) => clinic.id === formValues.clinicId) ?? null,
+    [clinics, formValues.clinicId]
+  );
+
+  const openDayOptions = useMemo(() => {
+    if (!selectedClinic) return [] as OperatingDayValue[];
+    const unique = new Set(selectedClinic.operatingTimes.map((time) => time.openDay));
+    return operatingDayOptions
+      .map((day) => day.value)
+      .filter((day) => unique.has(day));
+  }, [selectedClinic]);
+
+  const operatingTimesForDay = useMemo(() => {
+    if (!selectedClinic || !formValues.openDay) {
+      return [] as ClinicOption["operatingTimes"];
+    }
+    return selectedClinic.operatingTimes.filter(
+      (time) => time.openDay === formValues.openDay
+    );
+  }, [selectedClinic, formValues.openDay]);
+
+  const timeOptions = useMemo(() => {
+    if (!formValues.setDay) return [];
+    const options = buildTimeOptions(operatingTimesForDay);
+    if (!formValues.setDay || formValues.setDay !== minDateKey) {
+      return options;
+    }
+    return options.filter((time) => {
+      const minutes = timeStringToMinutes(time);
+      return minutes !== null && minutes >= minTimeMinutes;
+    });
+  }, [operatingTimesForDay, formValues.setDay, minDateKey, minTimeMinutes]);
+
+  const selectedFormDate = useMemo(() => {
+    if (!formValues.setDay) return undefined;
+    const parsed = parseLocalDateKey(formValues.setDay);
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+  }, [formValues.setDay]);
+
+  const isDateAllowed = (date: Date, openDay: OperatingDayValue) => {
+    if (!operatingTimesForDay.length) return false;
+    const targetIndex =
+      operatingDayOptions.find((day) => day.value === openDay)?.index ?? 0;
+    if (date.getDay() !== targetIndex) return false;
+    const dateKey = formatLocalDateKey(date);
+    if (dateKey < minDateKey) return false;
+    if (dateKey !== minDateKey) return true;
+    return operatingTimesForDay.some((time) => {
+      const end = timeStringToMinutes(time.endTime);
+      if (end === null) return false;
+      return end >= minTimeMinutes;
+    });
+  };
+
+  const nextValidDate = useMemo(() => {
+    if (!formValues.openDay || !operatingTimesForDay.length) return "";
+    const targetIndex =
+      operatingDayOptions.find((day) => day.value === formValues.openDay)?.index ?? 0;
+    let cursor = startOfDay(minDateTime);
+    let guard = 0;
+    while (guard < 366) {
+      if (cursor.getDay() === targetIndex) {
+        const dateKey = formatLocalDateKey(cursor);
+        if (dateKey !== minDateKey) {
+          return dateKey;
+        }
+        const hasTime = operatingTimesForDay.some((time) => {
+          const end = timeStringToMinutes(time.endTime);
+          if (end === null) return false;
+          return end >= minTimeMinutes;
+        });
+        if (hasTime) return dateKey;
+      }
+      cursor = addDays(cursor, 1);
+      guard += 1;
+    }
+    return "";
+  }, [
+    formValues.openDay,
+    operatingTimesForDay,
+    minDateKey,
+    minDateTime,
+    minTimeMinutes,
+  ]);
+
+  const isSelectedDateValid = useMemo(() => {
+    if (!formValues.openDay || !formValues.setDay) return false;
+    const parsed = parseLocalDateKey(formValues.setDay);
+    if (Number.isNaN(parsed.getTime())) return false;
+    return isDateAllowed(parsed, formValues.openDay as OperatingDayValue);
+  }, [formValues.openDay, formValues.setDay, operatingTimesForDay, minDateKey, minTimeMinutes]);
+
   useEffect(() => {
     if (!formOpen) return;
     if (editing) {
+      const editingDate = new Date(editing.setDay);
       setFormValues({
         clientId: editing.clientId,
         clinicId: editing.clinicId,
         doctorId: editing.doctorId ?? "",
-        setDay: formatDateValue(editing.setDay),
+        openDay: getOperatingDayFromDate(editingDate),
+        setDay: formatDateValue(editingDate),
         setTime: editing.setTime,
         status: editing.status,
       });
@@ -233,11 +370,70 @@ export function AdminCalendar({
       clientId: "",
       clinicId: "",
       doctorId: "",
+      openDay: "",
       setDay: formatDateValue(selectedDate),
       setTime: "",
-      status: "UNFILL",
+      status: "BOOKED",
     });
   }, [editing, formOpen, selectedDate]);
+
+  useEffect(() => {
+    if (!selectedClinic) {
+      if (formValues.openDay || formValues.setDay || formValues.setTime) {
+        setFormValues((prev) => ({
+          ...prev,
+          openDay: "",
+          setDay: "",
+          setTime: "",
+        }));
+      }
+      return;
+    }
+    if (!openDayOptions.length) {
+      if (formValues.openDay || formValues.setDay || formValues.setTime) {
+        setFormValues((prev) => ({
+          ...prev,
+          openDay: "",
+          setDay: "",
+          setTime: "",
+        }));
+      }
+      return;
+    }
+    if (!openDayOptions.includes(formValues.openDay as OperatingDayValue)) {
+      setFormValues((prev) => ({
+        ...prev,
+        openDay: openDayOptions[0] ?? "",
+      }));
+    }
+  }, [selectedClinic, openDayOptions, formValues.openDay, formValues.setDay, formValues.setTime]);
+
+  useEffect(() => {
+    if (!formValues.openDay) return;
+    if (!nextValidDate) {
+      if (formValues.setDay) {
+        setFormValues((prev) => ({ ...prev, setDay: "" }));
+      }
+      return;
+    }
+    if (!isSelectedDateValid) {
+      if (nextValidDate !== formValues.setDay) {
+        setFormValues((prev) => ({ ...prev, setDay: nextValidDate }));
+      }
+    }
+  }, [formValues.openDay, formValues.setDay, nextValidDate, isSelectedDateValid]);
+
+  useEffect(() => {
+    if (!timeOptions.length) {
+      if (formValues.setTime) {
+        setFormValues((prev) => ({ ...prev, setTime: "" }));
+      }
+      return;
+    }
+    if (!timeOptions.includes(formValues.setTime)) {
+      setFormValues((prev) => ({ ...prev, setTime: timeOptions[0] ?? "" }));
+    }
+  }, [timeOptions, formValues.setTime]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -457,7 +653,10 @@ export function AdminCalendar({
               <Select
                 value={formValues.clinicId}
                 onValueChange={(value) =>
-                  setFormValues((prev) => ({ ...prev, clinicId: value }))
+                  setFormValues((prev) => ({
+                    ...prev,
+                    clinicId: value,
+                  }))
                 }
               >
                 <SelectTrigger id="clinicId">
@@ -469,6 +668,35 @@ export function AdminCalendar({
                       {clinic.name}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-3">
+              <Label htmlFor="openDay">Open day</Label>
+              <Select
+                value={formValues.openDay}
+                onValueChange={(value) =>
+                  setFormValues((prev) => ({
+                    ...prev,
+                    openDay: value as OperatingDayValue,
+                  }))
+                }
+              >
+                <SelectTrigger id="openDay" disabled={!openDayOptions.length}>
+                  <SelectValue placeholder="Select open day" />
+                </SelectTrigger>
+                <SelectContent>
+                  {openDayOptions.length ? (
+                    openDayOptions.map((day) => (
+                      <SelectItem key={day} value={day}>
+                        {getOperatingDayLabel(day)}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="none" disabled>
+                      No open days
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -498,33 +726,88 @@ export function AdminCalendar({
             </div>
             <div className="grid gap-3">
               <Label htmlFor="setDay">Appointment date</Label>
-              <Input
-                id="setDay"
-                name="setDay"
-                type="date"
-                value={formValues.setDay}
-                onChange={(event) =>
-                  setFormValues((prev) => ({
-                    ...prev,
-                    setDay: event.target.value,
-                  }))
-                }
-              />
+              <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="justify-start text-left font-normal"
+                    disabled={!formValues.openDay || !nextValidDate}
+                  >
+                    <CalendarDays className="mr-2 h-4 w-4" />
+                    {selectedFormDate
+                      ? selectedFormDate.toLocaleDateString(undefined, {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "Select date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={selectedFormDate}
+                    onSelect={(date) => {
+                      if (!date) return;
+                      const nextValue = formatLocalDateKey(date);
+                      setFormValues((prev) => ({ ...prev, setDay: nextValue }));
+                      setDateOpen(false);
+                    }}
+                    modifiers={{
+                      available: (date) =>
+                        Boolean(formValues.openDay) &&
+                        isDateAllowed(
+                          date,
+                          formValues.openDay as OperatingDayValue
+                        ),
+                    }}
+                    modifiersClassNames={{
+                      available:
+                        "bg-blue-600/15 text-blue-700 hover:bg-blue-600/20",
+                    }}
+                    disabled={(date) => {
+                      if (!formValues.openDay) return true;
+                      return !isDateAllowed(
+                        date,
+                        formValues.openDay as OperatingDayValue
+                      );
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              {formValues.openDay && !nextValidDate ? (
+                <p className="text-xs text-red-600">
+                  No valid dates are available.
+                </p>
+              ) : null}
             </div>
             <div className="grid gap-3">
               <Label htmlFor="setTime">Appointment time</Label>
-              <Input
-                id="setTime"
-                name="setTime"
-                type="time"
+              <Select
                 value={formValues.setTime}
-                onChange={(event) =>
-                  setFormValues((prev) => ({
-                    ...prev,
-                    setTime: event.target.value,
-                  }))
+                onValueChange={(value) =>
+                  setFormValues((prev) => ({ ...prev, setTime: value }))
                 }
-              />
+              >
+                <SelectTrigger id="setTime" disabled={!timeOptions.length}>
+                  <SelectValue placeholder="Select time" />
+                </SelectTrigger>
+                <SelectContent>
+                  {timeOptions.length ? (
+                    timeOptions.map((time) => (
+                      <SelectItem key={time} value={time}>
+                        {time}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="none" disabled>
+                      No available times
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid gap-3">
               <Label htmlFor="status">Status</Label>

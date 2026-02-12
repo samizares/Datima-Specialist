@@ -1,6 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  type ChangeEvent,
+  type FormEvent,
+  type PointerEvent,
+} from "react";
 import Image from "next/image";
 import { Pencil, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -40,19 +49,28 @@ import {
 import { getClinics } from "../queries/get-clinics";
 import { uploadAttachment } from "@/features/attachment/actions/upload-attachment";
 import { attachmentDownloadPath } from "@/paths";
+import { operatingDayOptions, type OperatingDayValue } from "@/lib/operating-days";
 
 type ClinicRecord = Awaited<ReturnType<typeof getClinics>>[number];
+
+type OperatingTimeValue = {
+  openDay: OperatingDayValue;
+  startTime: string;
+  endTime: string;
+};
 
 type ClinicFormValues = {
   name: string;
   desc: string;
   attachmentId: string;
+  operatingTimes: OperatingTimeValue[];
 };
 
 const defaultFormValues: ClinicFormValues = {
   name: "",
   desc: "",
   attachmentId: "",
+  operatingTimes: [],
 };
 
 type ClinicsTableProps = {
@@ -109,6 +127,15 @@ export function ClinicsTable({
   const [isUploading, setUploading] = useState(false);
   const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
   const uploadRef = useRef<HTMLInputElement | null>(null);
+  const previewRef = useRef<HTMLDivElement | null>(null);
+  const [position, setPosition] = useState({ x: 50, y: 50 });
+  const [isDragging, setDragging] = useState(false);
+  const dragState = useRef<{
+    startX: number;
+    startY: number;
+    startPosX: number;
+    startPosY: number;
+  } | null>(null);
 
   const tableRows = useMemo(() => clinics.slice(0, 6), [clinics]);
 
@@ -126,6 +153,12 @@ export function ClinicsTable({
         name: editing.name,
         desc: editing.desc,
         attachmentId: editing.attachmentId ?? "",
+        operatingTimes:
+          editing.operatingTimes?.map((time) => ({
+            openDay: time.openDay,
+            startTime: time.startTime,
+            endTime: time.endTime,
+          })) ?? [],
       });
       setAttachmentPreview(
         editing.attachmentId ? attachmentDownloadPath(editing.attachmentId) : null
@@ -134,6 +167,7 @@ export function ClinicsTable({
       setFormValues(defaultFormValues);
       setAttachmentPreview(null);
     }
+    setPosition({ x: 50, y: 50 });
   }, [editing, formOpen]);
 
   const handleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -154,7 +188,43 @@ export function ClinicsTable({
     }
     setFormValues((prev) => ({ ...prev, attachmentId }));
     setAttachmentPreview(URL.createObjectURL(file));
+    setPosition({ x: 50, y: 50 });
     setUploading(false);
+  };
+
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (!previewRef.current) return;
+    previewRef.current.setPointerCapture(event.pointerId);
+    setDragging(true);
+    dragState.current = {
+      startX: event.clientX,
+      startY: event.clientY,
+      startPosX: position.x,
+      startPosY: position.y,
+    };
+  };
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!previewRef.current || !dragState.current) return;
+    const rect = previewRef.current.getBoundingClientRect();
+    const deltaX = event.clientX - dragState.current.startX;
+    const deltaY = event.clientY - dragState.current.startY;
+    const nextX = Math.min(
+      100,
+      Math.max(0, dragState.current.startPosX + (deltaX / rect.width) * 100)
+    );
+    const nextY = Math.min(
+      100,
+      Math.max(0, dragState.current.startPosY + (deltaY / rect.height) * 100)
+    );
+    setPosition({ x: nextX, y: nextY });
+  };
+
+  const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    if (!previewRef.current) return;
+    previewRef.current.releasePointerCapture(event.pointerId);
+    dragState.current = null;
+    setDragging(false);
   };
 
   const handleAddClick = () => {
@@ -190,6 +260,39 @@ export function ClinicsTable({
     });
   };
 
+  const addOperatingTime = () => {
+    setFormValues((prev) => ({
+      ...prev,
+      operatingTimes: [
+        ...prev.operatingTimes,
+        {
+          openDay: operatingDayOptions[0]?.value ?? "MONDAY",
+          startTime: "",
+          endTime: "",
+        },
+      ],
+    }));
+  };
+
+  const updateOperatingTime = (
+    index: number,
+    updates: Partial<OperatingTimeValue>
+  ) => {
+    setFormValues((prev) => ({
+      ...prev,
+      operatingTimes: prev.operatingTimes.map((time, timeIndex) =>
+        timeIndex === index ? { ...time, ...updates } : time
+      ),
+    }));
+  };
+
+  const removeOperatingTime = (index: number) => {
+    setFormValues((prev) => ({
+      ...prev,
+      operatingTimes: prev.operatingTimes.filter((_, timeIndex) => timeIndex !== index),
+    }));
+  };
+
   return (
     <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -198,7 +301,7 @@ export function ClinicsTable({
             Clinics
           </p>
           <h1 className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
-            Clinic directories
+            Manage Clinics
           </h1>
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             Update clinic profiles, descriptions, and linked assets.
@@ -244,6 +347,7 @@ export function ClinicsTable({
             <TableRow className="border-slate-200/70 dark:border-slate-800">
               <TableHead>Clinic</TableHead>
               <TableHead>Description</TableHead>
+              <TableHead>Doctors</TableHead>
               <TableHead>Image</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
@@ -260,6 +364,21 @@ export function ClinicsTable({
                   </TableCell>
                   <TableCell className="max-w-md truncate text-slate-500 dark:text-slate-400">
                     {clinic.desc}
+                  </TableCell>
+                  <TableCell className="text-slate-500 dark:text-slate-400">
+                    {clinic.doctors.length
+                      ? Array.from(
+                          new Set(
+                            clinic.doctors
+                              .map((schedule) =>
+                                schedule.doctor
+                                  ? `${schedule.doctor.firstName} ${schedule.doctor.lastName}`
+                                  : null
+                              )
+                              .filter((value): value is string => Boolean(value))
+                          )
+                        ).join(", ")
+                      : "No doctors"}
                   </TableCell>
                   <TableCell>
                     <div className="h-10 w-14 overflow-hidden rounded-lg bg-slate-100">
@@ -300,7 +419,7 @@ export function ClinicsTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="py-10 text-center text-sm text-slate-500">
+                <TableCell colSpan={5} className="py-10 text-center text-sm text-slate-500">
                   No clinics found.
                 </TableCell>
               </TableRow>
@@ -310,7 +429,7 @@ export function ClinicsTable({
       </div>
 
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-xl rounded-3xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <DialogContent className="max-h-[85vh] max-w-xl overflow-y-auto rounded-3xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <DialogHeader>
             <DialogTitle className="inline-flex w-fit rounded-lg bg-blue-600 px-3 py-2 text-xl font-semibold text-white">
               {editing ? "Edit clinic" : "Add clinic"}
@@ -340,20 +459,120 @@ export function ClinicsTable({
                 className="min-h-[120px] rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
               />
             </div>
+            <div className="rounded-2xl border border-slate-200/80 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                    Operating times
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Optional. Clinics only appear in appointment booking after at
+                    least one operating time is saved.
+                  </p>
+                </div>
+                <Button type="button" variant="outline" onClick={addOperatingTime}>
+                  Add operating time
+                </Button>
+              </div>
+              {formValues.operatingTimes.length ? (
+                <div className="mt-4 space-y-3">
+                  {formValues.operatingTimes.map((time, index) => (
+                    <div
+                      key={`${time.openDay}-${index}`}
+                      className="grid gap-3 md:grid-cols-[1.3fr_1fr_1fr_auto] md:items-end"
+                    >
+                      <div className="grid gap-2">
+                        <Label>Open day</Label>
+                        <Select
+                          value={time.openDay}
+                          onValueChange={(value) =>
+                            updateOperatingTime(index, {
+                              openDay: value as OperatingDayValue,
+                            })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select day" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {operatingDayOptions.map((day) => (
+                              <SelectItem key={day.value} value={day.value}>
+                                {day.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>Start time</Label>
+                        <Input
+                          type="time"
+                          value={time.startTime}
+                          onChange={(event) =>
+                            updateOperatingTime(index, {
+                              startTime: event.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>End time</Label>
+                        <Input
+                          type="time"
+                          value={time.endTime}
+                          onChange={(event) =>
+                            updateOperatingTime(index, {
+                              endTime: event.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-10 w-10 text-slate-500 hover:text-red-500"
+                        onClick={() => removeOperatingTime(index)}
+                        aria-label="Remove operating time"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                  No operating times added yet.
+                </p>
+              )}
+            </div>
             <div className="grid gap-2">
               <Label>Clinic image</Label>
               <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-950">
                 {attachmentPreview ? (
                   <div className="space-y-3">
-                    <div className="relative h-36 w-full overflow-hidden rounded-xl border border-slate-200">
+                    <div
+                      ref={previewRef}
+                      className="relative h-[300px] w-full touch-none overflow-hidden rounded-xl border border-slate-200"
+                      onPointerDown={handlePointerDown}
+                      onPointerMove={handlePointerMove}
+                      onPointerUp={handlePointerUp}
+                      onPointerCancel={handlePointerUp}
+                    >
                       <Image
                         src={attachmentPreview}
                         alt="Clinic preview"
                         fill
                         sizes="480px"
-                        className="object-cover"
+                        quality={100}
+                        className={`object-cover select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+                        style={{ objectPosition: `${position.x}% ${position.y}%` }}
+                        draggable={false}
                       />
                     </div>
+                    <span className="block text-xs text-slate-500">
+                      Drag the image to adjust its positioning.
+                    </span>
                     <Button
                       type="button"
                       variant="outline"

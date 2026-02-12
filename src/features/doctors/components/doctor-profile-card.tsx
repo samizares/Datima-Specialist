@@ -23,16 +23,10 @@ type DoctorRecord = Awaited<ReturnType<typeof getDoctor>>;
 
 type Doctor = NonNullable<DoctorRecord>;
 
-type ClinicOption = {
-  id: string;
-  name: string;
-};
-
 type DoctorFormValues = {
   firstName: string;
   lastName: string;
   email: string;
-  clinicId: string;
   attachmentId: string;
 };
 
@@ -40,17 +34,14 @@ const defaultFormValues: DoctorFormValues = {
   firstName: "",
   lastName: "",
   email: "",
-  clinicId: "none",
   attachmentId: "",
 };
 
 export function DoctorProfileCard({
   doctor,
-  clinicOptions,
   canEdit,
 }: {
   doctor: Doctor;
-  clinicOptions: ClinicOption[];
   canEdit: boolean;
 }) {
   const [profile, setProfile] = useState(doctor);
@@ -64,7 +55,6 @@ export function DoctorProfileCard({
       firstName: profile.firstName,
       lastName: profile.lastName,
       email: profile.email,
-      clinicId: profile.clinicId ?? "none",
       attachmentId: profile.attachmentId ?? "",
     });
   }, [formOpen, profile]);
@@ -74,7 +64,6 @@ export function DoctorProfileCard({
     startTransition(async () => {
       const payload = {
         ...formValues,
-        clinicId: formValues.clinicId === "none" ? null : formValues.clinicId,
         attachmentId: formValues.attachmentId || null,
       };
       const action = await updateDoctor(profile.id, payload);
@@ -82,25 +71,27 @@ export function DoctorProfileCard({
         toast.error(action.message || "Please check the form fields.");
         return;
       }
-      const nextClinicId = formValues.clinicId === "none" ? null : formValues.clinicId;
-      const nextClinicName = clinicOptions.find(
-        (clinic) => clinic.id === nextClinicId
-      )?.name;
       setProfile((prev) => ({
         ...prev,
         firstName: formValues.firstName,
         lastName: formValues.lastName,
         email: formValues.email,
-        clinicId: nextClinicId,
         attachmentId: formValues.attachmentId || null,
-        clinic: nextClinicName ? { name: nextClinicName } : null,
       }));
       toast.success(action.message || "Doctor updated.");
       setFormOpen(false);
     });
   };
 
-  const clinicLabel = profile.clinic?.name ?? "Unassigned";
+  const clinicLabels = profile.clinics.length
+    ? Array.from(
+        new Set(
+          profile.clinics
+            .map((schedule) => schedule.clinic?.name ?? null)
+            .filter((value): value is string => Boolean(value))
+        )
+      ).join(", ")
+    : "Unassigned";
 
   return (
     <div className="space-y-6">
@@ -143,11 +134,11 @@ export function DoctorProfileCard({
               Dr. {profile.firstName} {profile.lastName}
             </h2>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              {clinicLabel}
+              {clinicLabels}
             </p>
           </div>
           <Badge className="rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
-            {clinicLabel}
+            {clinicLabels}
           </Badge>
         </CardContent>
       </Card>
@@ -185,18 +176,10 @@ export function DoctorProfileCard({
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-              Clinic
+              Clinics
             </p>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {clinicLabel}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-              Clinic ID
-            </p>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {profile.clinicId ?? "Not assigned"}
+              {clinicLabels}
             </p>
           </div>
           <div>
@@ -220,7 +203,6 @@ export function DoctorProfileCard({
           <form className="mt-4 grid gap-4" onSubmit={handleSubmit}>
             <DoctorFormFields
               values={formValues}
-              clinics={clinicOptions}
               onChange={setFormValues}
             />
             <DialogFooter className="gap-2">

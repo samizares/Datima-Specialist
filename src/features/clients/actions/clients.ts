@@ -21,8 +21,14 @@ export type ClientInput = {
   telephone: string;
   address: string;
   status: string;
-  attachmentId: string;
+  attachmentId?: string | null;
 };
+
+const attachmentIdSchema = z
+  .union([z.string().trim().min(1), z.literal(""), z.null(), z.undefined()])
+  .transform((value) =>
+    typeof value === "string" && value.length > 0 ? value : null
+  );
 
 const clientSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -33,7 +39,7 @@ const clientSchema = z.object({
   telephone: z.string().min(1, "Telephone is required"),
   address: z.string().min(1, "Address is required"),
   status: z.enum(["PROSPECT", "PATIENT"]),
-  attachmentId: z.string().min(1, "Attachment ID is required"),
+  attachmentId: attachmentIdSchema,
 });
 
 const ensureAdminAccess = (user: Awaited<ReturnType<typeof getAuthOrRedirect>>["user"]) => {

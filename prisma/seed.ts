@@ -32,6 +32,7 @@ async function main() {
     where: { id: "user-admin" },
     update: {
       username: "admin",
+      fullName: "Admin User",
       email: "admin@datimaspecialistclinics.com",
       emailVerified: true,
       isAdmin: true,
@@ -41,6 +42,7 @@ async function main() {
     create: {
       id: "user-admin",
       username: "admin",
+      fullName: "Admin User",
       email: "admin@datimaspecialistclinics.com",
       emailVerified: true,
       isAdmin: true,
@@ -56,6 +58,7 @@ async function main() {
     where: { id: "user-manager" },
     update: {
       username: "manager",
+      fullName: "Clinic Manager",
       email: "manager@datimaspecialistclinics.com",
       emailVerified: true,
       isAdmin: true,
@@ -65,6 +68,7 @@ async function main() {
     create: {
       id: "user-manager",
       username: "manager",
+      fullName: "Clinic Manager",
       email: "manager@datimaspecialistclinics.com",
       emailVerified: true,
       isAdmin: true,
@@ -81,10 +85,13 @@ async function main() {
       const passwordHash = await hashPassword(`user${i + 1}`);
       return prisma.user.upsert({
         where: { id },
-        update: {},
+        update: {
+          fullName: `User ${i + 1}`,
+        },
         create: {
           id,
           username: `user${i + 1}`,
+          fullName: `User ${i + 1}`,
           email: `user${i + 1}@example.com`,
           emailVerified: i % 2 === 0,
           isAdmin: false,
@@ -147,13 +154,41 @@ async function main() {
           firstName: `Doctor${i + 1}`,
           lastName: `Lastname${i + 1}`,
           email: `doctor${i + 1}@example.com`,
-          clinic: { connect: { id: clinics[i].id } },
           createdAt: now,
           updatedAt: now,
         },
       });
     })
   );
+
+  await prisma.operatingTime.createMany({
+    data: clinics.flatMap((clinic, i) => [
+      {
+        clinicId: clinic.id,
+        openDay: "MONDAY",
+        startTime: "08:00",
+        endTime: "16:00",
+      },
+      {
+        clinicId: clinic.id,
+        openDay: "WEDNESDAY",
+        startTime: "09:00",
+        endTime: "15:00",
+      },
+    ]),
+    skipDuplicates: true,
+  });
+
+  await prisma.clinicSchedule.createMany({
+    data: doctors.map((doctor, i) => ({
+      clinicId: clinics[i % clinics.length].id,
+      doctorId: doctor.id,
+      date: addDays(i + 1),
+      startShift: "09:00",
+      endShift: "12:00",
+    })),
+    skipDuplicates: true,
+  });
 
   await Promise.all(
     Array.from({ length: 4 }, (_, i) => {
@@ -165,7 +200,7 @@ async function main() {
           id,
           setDay: addDays(i + 1),
           setTime: "09:00",
-          status: "UNFILL",
+          status: "BOOKED",
           client: { connect: { id: clients[i].id } },
           clinic: { connect: { id: clinics[i].id } },
           doctor: { connect: { id: doctors[i].id } },
@@ -283,46 +318,6 @@ async function main() {
           expiresAt: addDays(3 + i),
           email: users[i].email,
           user: { connect: { id: users[i].id } },
-        },
-      });
-    })
-  );
-
-  await Promise.all(
-    Array.from({ length: 4 }, (_, i) => {
-      const id = `clinic-schedule-${i + 1}`;
-      return prisma.clinicSchedule.upsert({
-        where: { id },
-        update: {},
-        create: {
-          id,
-          days: "Mon-Fri",
-          openTime: "08:00am",
-          closeTime: "05:00pm",
-          clinic: { connect: { id: clinics[i].id } },
-          doctor: { connect: { id: doctors[i].id } },
-          createdAt: now,
-          updatedAt: now,
-        },
-      });
-    })
-  );
-
-  await Promise.all(
-    Array.from({ length: 4 }, (_, i) => {
-      const id = `doctor-schedule-${i + 1}`;
-      return prisma.doctorSchedule.upsert({
-        where: { id },
-        update: {},
-        create: {
-          id,
-          day: "Monday",
-          startTime: "09:00am",
-          endTime: "04:00pm",
-          doctor: { connect: { id: doctors[i].id } },
-          clinic: { connect: { id: clinics[i].id } },
-          createdAt: now,
-          updatedAt: now,
         },
       });
     })

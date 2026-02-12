@@ -17,6 +17,7 @@ import { adminUsersPath } from "@/paths";
 
 export type UserInput = {
   username: string;
+  fullName: string;
   email: string;
   password?: string;
   emailVerified: boolean;
@@ -25,13 +26,20 @@ export type UserInput = {
   attachmentId?: string | null;
 };
 
+const attachmentIdSchema = z
+  .union([z.string().trim().min(1), z.literal(""), z.null(), z.undefined()])
+  .transform((value) =>
+    typeof value === "string" && value.length > 0 ? value : null
+  );
+
 const baseUserSchema = z.object({
   username: z.string().min(2, "Username is required"),
+  fullName: z.string().min(1, "Full name is required"),
   email: z.string().email("Valid email is required"),
   emailVerified: z.boolean(),
   isAdmin: z.boolean(),
   isSuperAdmin: z.boolean(),
-  attachmentId: z.string().optional().nullable(),
+  attachmentId: attachmentIdSchema,
 });
 
 const createUserSchema = baseUserSchema.extend({
@@ -62,7 +70,7 @@ export async function createUser(input: UserInput): Promise<ActionState> {
 
     const payload = {
       username: data.username,
-      fullName: data.username,
+      fullName: data.fullName,
       email: data.email,
       emailVerified: data.emailVerified,
       ...(isSuperAdmin(user)
@@ -92,7 +100,7 @@ export async function updateUser(
     const data = updateUserSchema.parse(input);
     const payload: {
       username: string;
-      fullName?: string | null;
+      fullName: string;
       email: string;
       emailVerified: boolean;
       isAdmin?: boolean;
@@ -101,7 +109,7 @@ export async function updateUser(
       attachmentId?: string | null;
     } = {
       username: data.username,
-      fullName: data.username,
+      fullName: data.fullName,
       email: data.email,
       emailVerified: data.emailVerified,
       attachmentId: data.attachmentId ?? null,

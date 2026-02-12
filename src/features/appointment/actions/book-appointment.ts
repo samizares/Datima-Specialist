@@ -1,5 +1,6 @@
 "use server";
 
+import { addHours } from "date-fns";
 import { z } from "zod";
 import {
   ActionState,
@@ -7,6 +8,12 @@ import {
   toActionState,
 } from "@/components/form/utils/to-action-state";
 import { prisma } from "@/lib/prisma";
+import { getOperatingDayFromDate } from "@/lib/operating-days";
+import {
+  buildLocalDateTime,
+  parseLocalDateKey,
+  timeStringToMinutes,
+} from "@/lib/time";
 import { sendAppointmentConfirmation } from "@/features/appointment/emails/send-appointment-confirmation";
 import { sendAppointmentSupport } from "@/features/appointment/emails/send-appointment-support";
 
@@ -51,7 +58,7 @@ export const bookAppointment = async (
       setTime: formData.get("setTime"),
     });
 
-    const appointmentDay = new Date(data.setDay);
+    const appointmentDay = parseLocalDateKey(data.setDay);
     if (Number.isNaN(appointmentDay.getTime())) {
       return toActionState("ERROR", "Appointment date is invalid", formData);
     }
@@ -72,6 +79,64 @@ export const bookAppointment = async (
 
     if (!clinic) {
       return toActionState("ERROR", "Clinic is invalid", formData);
+    }
+
+    const operatingTimes = await prisma.operatingTime.findMany({
+      where: { clinicId: clinic.id },
+    });
+    if (!operatingTimes.length) {
+      return toActionState(
+        "ERROR",
+        "Clinic does not have operating times configured",
+        formData
+      );
+    }
+
+    const openDay = getOperatingDayFromDate(appointmentDay);
+    const dayTimes = operatingTimes.filter((time) => time.openDay === openDay);
+    if (!dayTimes.length) {
+      return toActionState(
+        "ERROR",
+        "Clinic is not open on the selected date",
+        formData
+      );
+    }
+
+    const appointmentMinutes = timeStringToMinutes(data.setTime);
+    if (appointmentMinutes === null) {
+      return toActionState("ERROR", "Appointment time is invalid", formData);
+    }
+
+    const appointmentDateTime = buildLocalDateTime(
+      appointmentDay,
+      data.setTime
+    );
+    if (!appointmentDateTime) {
+      return toActionState("ERROR", "Appointment time is invalid", formData);
+    }
+
+    const minDateTime = addHours(new Date(), 24);
+    if (appointmentDateTime < minDateTime) {
+      return toActionState(
+        "ERROR",
+        "Appointments must be scheduled at least 24 hours in advance",
+        formData
+      );
+    }
+
+    const withinOperatingTime = dayTimes.some((time) => {
+      const start = timeStringToMinutes(time.startTime);
+      const end = timeStringToMinutes(time.endTime);
+      if (start === null || end === null) return false;
+      return appointmentMinutes >= start && appointmentMinutes <= end;
+    });
+
+    if (!withinOperatingTime) {
+      return toActionState(
+        "ERROR",
+        "Appointment time is outside clinic operating hours",
+        formData
+      );
     }
 
     const client = await prisma.client.upsert({

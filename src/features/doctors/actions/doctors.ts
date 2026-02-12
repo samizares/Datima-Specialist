@@ -18,16 +18,20 @@ export type DoctorInput = {
   firstName: string;
   lastName: string;
   email: string;
-  clinicId?: string | null;
   attachmentId?: string | null;
 };
+
+const attachmentIdSchema = z
+  .union([z.string().trim().min(1), z.literal(""), z.null(), z.undefined()])
+  .transform((value) =>
+    typeof value === "string" && value.length > 0 ? value : null
+  );
 
 const doctorSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Valid email is required"),
-  clinicId: z.string().optional().nullable(),
-  attachmentId: z.string().optional().nullable(),
+  attachmentId: attachmentIdSchema,
 });
 
 const ensureAdminAccess = (user: Awaited<ReturnType<typeof getAuthOrRedirect>>["user"]) => {

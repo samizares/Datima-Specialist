@@ -41,16 +41,10 @@ import { attachmentDownloadPath } from "@/paths";
 
 type DoctorRecord = Awaited<ReturnType<typeof getDoctors>>[number];
 
-type ClinicOption = {
-  id: string;
-  name: string;
-};
-
 type DoctorFormValues = {
   firstName: string;
   lastName: string;
   email: string;
-  clinicId: string;
   attachmentId: string;
 };
 
@@ -58,7 +52,6 @@ const defaultFormValues: DoctorFormValues = {
   firstName: "",
   lastName: "",
   email: "",
-  clinicId: "none",
   attachmentId: "",
 };
 
@@ -99,12 +92,10 @@ const DeleteDoctorButton = ({
 
 export function DoctorsTable({
   initialDoctors,
-  clinicOptions,
   canEdit,
   canDelete,
 }: {
   initialDoctors: DoctorRecord[];
-  clinicOptions: ClinicOption[];
   canEdit: boolean;
   canDelete: boolean;
 }) {
@@ -130,7 +121,6 @@ export function DoctorsTable({
         firstName: editing.firstName,
         lastName: editing.lastName,
         email: editing.email,
-        clinicId: editing.clinicId ?? "none",
         attachmentId: editing.attachmentId ?? "",
       });
     } else {
@@ -155,7 +145,6 @@ export function DoctorsTable({
     startTransition(async () => {
       const payload = {
         ...formValues,
-        clinicId: formValues.clinicId === "none" ? null : formValues.clinicId,
         attachmentId: formValues.attachmentId || null,
       };
       const action = editing
@@ -180,7 +169,7 @@ export function DoctorsTable({
             Doctors
           </p>
           <h1 className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
-            Specialist roster
+            Manage Doctors
           </h1>
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             Manage clinician profiles and their clinic assignments.
@@ -227,7 +216,7 @@ export function DoctorsTable({
               <TableHead>Photo</TableHead>
               <TableHead>Doctor</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Clinic</TableHead>
+              <TableHead>Clinics</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -265,7 +254,15 @@ export function DoctorsTable({
                     {doctor.email}
                   </TableCell>
                   <TableCell className="text-slate-500 dark:text-slate-400">
-                    {doctor.clinic?.name ?? "Unassigned"}
+                    {doctor.clinics.length
+                      ? Array.from(
+                          new Set(
+                            doctor.clinics
+                              .map((schedule) => schedule.clinic?.name ?? null)
+                              .filter((value): value is string => Boolean(value))
+                          )
+                        ).join(", ")
+                      : "Unassigned"}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -301,7 +298,7 @@ export function DoctorsTable({
       </div>
 
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-xl rounded-3xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <DialogContent className="max-h-[85vh] max-w-xl overflow-y-auto rounded-3xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <DialogHeader>
             <DialogTitle className="inline-flex w-fit rounded-lg bg-blue-600 px-3 py-2 text-xl font-semibold text-white">
               {editing ? "Edit doctor" : "Add doctor"}
@@ -310,7 +307,6 @@ export function DoctorsTable({
           <form className="mt-4 grid gap-4" onSubmit={handleSubmit}>
             <DoctorFormFields
               values={formValues}
-              clinics={clinicOptions}
               onChange={(values) => setFormValues(values)}
             />
             <DialogFooter className="gap-2">

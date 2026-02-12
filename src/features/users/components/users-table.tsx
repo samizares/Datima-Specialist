@@ -40,22 +40,42 @@ type UserRecord = Awaited<ReturnType<typeof getUsers>>[number];
 
 type UserFormValues = {
   username: string;
+  fullName: string;
   email: string;
   password: string;
   emailVerified: string;
-  isAdmin: string;
-  isSuperAdmin: string;
+  role: string;
   attachmentId: string;
 };
 
 const defaultFormValues: UserFormValues = {
   username: "",
+  fullName: "",
   email: "",
   password: "",
   emailVerified: "false",
-  isAdmin: "false",
-  isSuperAdmin: "false",
+  role: "none",
   attachmentId: "",
+};
+
+const roleFromFlags = (isAdmin: boolean, isSuperAdmin: boolean) => {
+  if (isAdmin && isSuperAdmin) return "both";
+  if (isSuperAdmin) return "super";
+  if (isAdmin) return "admin";
+  return "none";
+};
+
+const flagsFromRole = (role: string) => {
+  switch (role) {
+    case "both":
+      return { isAdmin: true, isSuperAdmin: true };
+    case "super":
+      return { isAdmin: false, isSuperAdmin: true };
+    case "admin":
+      return { isAdmin: true, isSuperAdmin: false };
+    default:
+      return { isAdmin: false, isSuperAdmin: false };
+  }
 };
 
 const DeleteUserButton = ({
@@ -124,11 +144,11 @@ export function UsersTable({
     if (editing) {
       setFormValues({
         username: editing.username,
+        fullName: editing.fullName,
         email: editing.email,
         password: "",
         emailVerified: String(editing.emailVerified),
-        isAdmin: String(editing.isAdmin),
-        isSuperAdmin: String(editing.isSuperAdmin),
+        role: roleFromFlags(editing.isAdmin, editing.isSuperAdmin),
         attachmentId: editing.attachmentId ?? "",
       });
     } else {
@@ -151,13 +171,15 @@ export function UsersTable({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     startTransition(async () => {
+      const roleFlags = flagsFromRole(formValues.role);
       const payload = {
         username: formValues.username,
+        fullName: formValues.fullName,
         email: formValues.email,
         password: formValues.password || undefined,
         emailVerified: formValues.emailVerified === "true",
-        isAdmin: formValues.isAdmin === "true",
-        isSuperAdmin: formValues.isSuperAdmin === "true",
+        isAdmin: roleFlags.isAdmin,
+        isSuperAdmin: roleFlags.isSuperAdmin,
         attachmentId: formValues.attachmentId || null,
       };
 
@@ -230,6 +252,7 @@ export function UsersTable({
             <TableRow className="border-slate-200/70 dark:border-slate-800">
               <TableHead>Photo</TableHead>
               <TableHead>User</TableHead>
+              <TableHead>Full name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Verified</TableHead>
               <TableHead>Role</TableHead>
@@ -268,17 +291,22 @@ export function UsersTable({
                     </Link>
                   </TableCell>
                   <TableCell className="text-slate-500 dark:text-slate-400">
+                    {user.fullName}
+                  </TableCell>
+                  <TableCell className="text-slate-500 dark:text-slate-400">
                     {user.email}
                   </TableCell>
                   <TableCell className="text-slate-500 dark:text-slate-400">
                     {user.emailVerified ? "Yes" : "No"}
                   </TableCell>
                   <TableCell className="text-slate-500 dark:text-slate-400">
-                    {user.isSuperAdmin
-                      ? "Super Admin"
-                      : user.isAdmin
-                        ? "Admin"
-                        : "User"}
+                    {user.isAdmin && user.isSuperAdmin
+                      ? "Both"
+                      : user.isSuperAdmin
+                        ? "Super Admin"
+                        : user.isAdmin
+                          ? "Admin User"
+                          : "None"}
                   </TableCell>
                   <TableCell className="text-slate-500 dark:text-slate-400">
                     {format(new Date(user.createdAt), "MMM d, yyyy")}
@@ -307,7 +335,7 @@ export function UsersTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="py-10 text-center text-sm text-slate-500">
+                <TableCell colSpan={8} className="py-10 text-center text-sm text-slate-500">
                   No users found.
                 </TableCell>
               </TableRow>
@@ -317,7 +345,7 @@ export function UsersTable({
       </div>
 
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-xl rounded-3xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <DialogContent className="max-h-[85vh] max-w-xl overflow-y-auto rounded-3xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <DialogHeader>
             <DialogTitle className="inline-flex w-fit rounded-lg bg-blue-600 px-3 py-2 text-xl font-semibold text-white">
               {editing ? "Edit user" : "Add user"}

@@ -26,28 +26,49 @@ type User = NonNullable<UserRecord>;
 
 type UserFormValues = {
   username: string;
+  fullName: string;
   email: string;
   password: string;
   emailVerified: string;
-  isAdmin: string;
-  isSuperAdmin: string;
+  role: string;
   attachmentId: string;
 };
 
 const defaultFormValues: UserFormValues = {
   username: "",
+  fullName: "",
   email: "",
   password: "",
   emailVerified: "false",
-  isAdmin: "false",
-  isSuperAdmin: "false",
+  role: "none",
   attachmentId: "",
 };
 
 const getRoleLabel = (user: User) => {
+  if (user.isAdmin && user.isSuperAdmin) return "Both";
   if (user.isSuperAdmin) return "Super Admin";
-  if (user.isAdmin) return "Admin";
-  return "User";
+  if (user.isAdmin) return "Admin User";
+  return "None";
+};
+
+const roleFromFlags = (isAdmin: boolean, isSuperAdmin: boolean) => {
+  if (isAdmin && isSuperAdmin) return "both";
+  if (isSuperAdmin) return "super";
+  if (isAdmin) return "admin";
+  return "none";
+};
+
+const flagsFromRole = (role: string) => {
+  switch (role) {
+    case "both":
+      return { isAdmin: true, isSuperAdmin: true };
+    case "super":
+      return { isAdmin: false, isSuperAdmin: true };
+    case "admin":
+      return { isAdmin: true, isSuperAdmin: false };
+    default:
+      return { isAdmin: false, isSuperAdmin: false };
+  }
 };
 
 export function UserProfileCard({
@@ -68,11 +89,11 @@ export function UserProfileCard({
     if (!formOpen) return;
     setFormValues({
       username: profile.username,
+      fullName: profile.fullName,
       email: profile.email,
       password: "",
       emailVerified: String(profile.emailVerified),
-      isAdmin: String(profile.isAdmin),
-      isSuperAdmin: String(profile.isSuperAdmin),
+      role: roleFromFlags(profile.isAdmin, profile.isSuperAdmin),
       attachmentId: profile.attachmentId ?? "",
     });
   }, [formOpen, profile]);
@@ -80,13 +101,15 @@ export function UserProfileCard({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     startTransition(async () => {
+      const roleFlags = flagsFromRole(formValues.role);
       const payload = {
         username: formValues.username,
+        fullName: formValues.fullName,
         email: formValues.email,
         password: formValues.password || undefined,
         emailVerified: formValues.emailVerified === "true",
-        isAdmin: formValues.isAdmin === "true",
-        isSuperAdmin: formValues.isSuperAdmin === "true",
+        isAdmin: roleFlags.isAdmin,
+        isSuperAdmin: roleFlags.isSuperAdmin,
         attachmentId: formValues.attachmentId || null,
       };
       const action = await updateUser(profile.id, payload);
@@ -97,6 +120,7 @@ export function UserProfileCard({
       setProfile((prev) => ({
         ...prev,
         username: payload.username,
+        fullName: payload.fullName,
         email: payload.email,
         emailVerified: payload.emailVerified,
         isAdmin: payload.isAdmin,
@@ -145,10 +169,10 @@ export function UserProfileCard({
           </div>
           <div className="flex-1">
             <h2 className="inline-flex w-fit rounded-lg bg-blue-600 px-3 py-2 text-xl font-semibold text-white">
-              {profile.username}
+              {profile.fullName}
             </h2>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              {profile.email}
+              @{profile.username} · {profile.email}
             </p>
           </div>
           <Badge className="rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
@@ -170,6 +194,14 @@ export function UserProfileCard({
             </p>
             <p className="mt-2 text-sm font-medium text-slate-900 dark:text-white">
               {profile.username}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              Full name
+            </p>
+            <p className="mt-2 text-sm font-medium text-slate-900 dark:text-white">
+              {profile.fullName}
             </p>
           </div>
           <div>

@@ -5,18 +5,18 @@ import { isAdmin } from "@/features/auth/utils/is-admin";
 import { isSuperAdmin } from "@/features/auth/utils/is-super-admin";
 import { prisma } from "@/lib/prisma";
 
-export async function getDoctorSchedules() {
+export const getInvoices = async () => {
   const { user } = await getAuthOrRedirect();
   if (!isAdmin(user) && !isSuperAdmin(user)) {
     return [];
   }
 
-  return prisma.doctorSchedule.findMany({
-    take: 6,
-    orderBy: { day: "asc" },
+  return prisma.invoice.findMany({
+    orderBy: { createdAt: "desc" },
     include: {
-      doctor: { select: { firstName: true, lastName: true } },
-      clinic: { select: { name: true } },
+      client: true,
+      items: true,
+      attachment: true,
     },
   });
-}
+};

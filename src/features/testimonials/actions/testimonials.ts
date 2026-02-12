@@ -21,7 +21,10 @@ export type TestimonialInput = {
 
 const testimonialSchema = z.object({
   clientId: z.string().min(1, "Client is required"),
-  content: z.string().min(1, "Testimonial is required"),
+  content: z
+    .string()
+    .min(1, "Testimonial is required")
+    .max(300, "Testimonial must be 300 characters or less"),
 });
 
 const ensureAdminAccess = (
