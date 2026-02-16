@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import Image from "next/image";
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import {
   ArrowRight,
   CheckCircle2,
@@ -20,6 +21,36 @@ import { formatDisplayDate, posts as blogPosts } from "@/features/blog/content";
 import { prisma } from "@/lib/prisma";
 
 // serviceLines moved to shared content file.
+
+export const metadata: Metadata = {
+  title: "Datima Specialist Clinics",
+  description:
+    "Premium specialist clinics delivering coordinated care, modern diagnostics, and proactive follow-ups for families and professionals.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Datima Specialist Clinics",
+    description:
+      "Premium specialist clinics delivering coordinated care, modern diagnostics, and proactive follow-ups for families and professionals.",
+    url: "/",
+    siteName: "Datima Specialist Clinics",
+    images: [
+      {
+        url: "/assets/ge-healthcare-lady.png",
+        alt: "Patient smiling at Datima Specialist Clinics",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Datima Specialist Clinics",
+    description:
+      "Premium specialist clinics delivering coordinated care, modern diagnostics, and proactive follow-ups for families and professionals.",
+    images: ["/assets/ge-healthcare-lady.png"],
+  },
+};
 
 const badgeStyles = () =>
   clsx(

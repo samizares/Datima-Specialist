@@ -1,8 +1,39 @@
 import Image from "next/image";
+import type { Metadata } from "next";
 
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { StaticPageHero } from "@/components/static-page-hero";
 import { aboutHighlights } from "@/features/about/content";
+
+export const metadata: Metadata = {
+  title: "About Datima Specialist Clinics",
+  description:
+    "Meet Datima Specialist Clinics and the team delivering compassionate, patient-centered care with modern diagnostics and coordinated specialists.",
+  alternates: {
+    canonical: "/about-us",
+  },
+  openGraph: {
+    title: "About Datima Specialist Clinics",
+    description:
+      "Meet Datima Specialist Clinics and the team delivering compassionate, patient-centered care with modern diagnostics and coordinated specialists.",
+    url: "/about-us",
+    siteName: "Datima Specialist Clinics",
+    images: [
+      {
+        url: "/assets/intro.jpg",
+        alt: "Datima Specialist Clinics care team",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Datima Specialist Clinics",
+    description:
+      "Meet Datima Specialist Clinics and the team delivering compassionate, patient-centered care with modern diagnostics and coordinated specialists.",
+    images: ["/assets/intro.jpg"],
+  },
+};
 
 export default function AboutUsPage() {
   return (

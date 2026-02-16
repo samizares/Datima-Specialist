@@ -2,6 +2,7 @@ import clsx from "clsx";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Suspense } from "react";
+import type { Metadata } from "next";
 
 import { AppointmentForm } from "@/components/appointment-form";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,36 @@ const badgeStyles = () =>
   clsx(
     "rounded-full px-3 py-1 text-xs font-semibold border border-border/70 bg-[#e5f6fb] text-black"
   );
+
+export const metadata: Metadata = {
+  title: "Our Services",
+  description:
+    "Explore Datima Specialist Clinics services across dental, eye care, pediatrics, diagnostics, and specialist consultations with easy appointment scheduling.",
+  alternates: {
+    canonical: "/our-services",
+  },
+  openGraph: {
+    title: "Our Services",
+    description:
+      "Explore Datima Specialist Clinics services across dental, eye care, pediatrics, diagnostics, and specialist consultations with easy appointment scheduling.",
+    url: "/our-services",
+    siteName: "Datima Specialist Clinics",
+    images: [
+      {
+        url: "/assets/services-card.jpg",
+        alt: "Datima Specialist Clinics services",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Our Services",
+    description:
+      "Explore Datima Specialist Clinics services across dental, eye care, pediatrics, diagnostics, and specialist consultations with easy appointment scheduling.",
+    images: ["/assets/services-card.jpg"],
+  },
+};
 
 export default async function OurServicesPage() {
   const clinics = await prisma.clinic.findMany({

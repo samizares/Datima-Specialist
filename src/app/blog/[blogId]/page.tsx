@@ -1,11 +1,60 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
-import { formatDisplayDate, posts } from "@/features/blog/content";
+import { formatDisplayDate, formatSummary, posts } from "@/features/blog/content";
 
 type BlogPostPageProps = {
   params: Promise<{ blogId: string }>;
 };
+
+const trimToLength = (value: string, max: number) => {
+  if (value.length <= max) {
+    return value;
+  }
+  return `${value.slice(0, Math.max(0, max - 3)).trimEnd()}...`;
+};
+
+export async function generateMetadata(
+  { params }: BlogPostPageProps
+): Promise<Metadata> {
+  const { blogId } = await params;
+  const post = posts.find((item) => item.id === blogId);
+
+  if (!post) {
+    notFound();
+  }
+
+  const description = trimToLength(formatSummary(post.content, 40), 200);
+  const title = trimToLength(post.title, 70);
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/blog/${post.id}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/blog/${post.id}`,
+      siteName: "Datima Specialist Clinics",
+      images: [
+        {
+          url: post.image,
+          alt: post.title,
+        },
+      ],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [post.image],
+    },
+  };
+}
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { blogId } = await params;
